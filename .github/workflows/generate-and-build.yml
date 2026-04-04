@@ -1,4 +1,4 @@
-name: Generate and Build
+name: Generate and Build (SWIG)
 
 on:
   workflow_dispatch:
@@ -6,79 +6,122 @@ on:
 jobs:
   generate-bindings:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install SWIG
         run: |
           sudo apt-get update
           sudo apt-get install -y swig
 
+      - name: Set up Java (for JNI headers)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
       - name: Generate Java Bindings
         run: |
           mkdir -p generated/java
-          swig -c++ -java -package imgui \
+
+          swig -c++ -java \
+               -package imgui \
                -outdir generated/java \
                -o generated/wrapper.cpp \
+               -Iinclude \
                bindings.i
+
+      - name: Upload generated files (debug)
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-bindings
+          path: generated/
 
   build:
     runs-on: ${{ matrix.os }}
     needs: generate-bindings
+
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Install SWIG (Linux/macOS)
-        if: runner.os != 'Windows'
+      - name: Download generated bindings
+        uses: actions/download-artifact@v4
+        with:
+          name: generated-bindings
+          path: generated/
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install SWIG (Linux)
+        if: runner.os == 'Linux'
         run: |
-          if [ "$RUNNER_OS" = "Linux" ]; then
-            sudo apt-get update && sudo apt-get install -y swig
-          else
-            brew install swig
-          fi
+          sudo apt-get update
+          sudo apt-get install -y swig
+
+      - name: Install SWIG (macOS)
+        if: runner.os == 'macOS'
+        run: brew install swig
 
       - name: Install SWIG (Windows)
         if: runner.os == 'Windows'
         run: choco install swig
 
-      - name: Generate Bindings
+      - name: Set JNI include paths
+        id: jni
         run: |
-          mkdir -p generated/java
-          swig -c++ -java -package imgui \
-               -outdir generated/java \
-               -o generated/wrapper.cpp \
-               bindings.i
+          echo "JAVA_HOME=$JAVA_HOME"
+          echo "JNI_INCLUDE=$JAVA_HOME/include" >> $GITHUB_ENV
 
-      - name: Compile C++ Code
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            echo "JNI_PLATFORM=$JAVA_HOME/include/linux" >> $GITHUB_ENV
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            echo "JNI_PLATFORM=$JAVA_HOME/include/darwin" >> $GITHUB_ENV
+          else
+            echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
+          fi
+        shell: bash
+
+      - name: Compile native library
         run: |
-          g++ -fPIC -c generated/wrapper.cpp -o wrapper.o
-          g++ -fPIC -c src/your_code.cpp -o your_code.o
-          g++ -shared wrapper.o your_code.o -o libnative.so
+          mkdir -p build
 
-      - name: Compile Java Code
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            g++ -shared -o build/native.dll \
+              -I"$JNI_INCLUDE" \
+              -I"$JNI_PLATFORM" \
+              generated/wrapper.cpp src/your_code.cpp
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            g++ -dynamiclib -fPIC -o build/libnative.dylib \
+              -I"$JNI_INCLUDE" \
+              -I"$JNI_PLATFORM" \
+              generated/wrapper.cpp src/your_code.cpp
+          else
+            g++ -shared -fPIC -o build/libnative.so \
+              -I"$JNI_INCLUDE" \
+              -I"$JNI_PLATFORM" \
+              generated/wrapper.cpp src/your_code.cpp
+          fi
+        shell: bash
+
+      - name: Compile Java classes
         run: |
           javac generated/java/*.java
 
-      - name: Add to Release
-        uses: ncipollo/release-action@v1
+      - name: Upload build outputs (debug)
+        uses: actions/upload-artifact@v4
         with:
-          artifacts: |
-            libnative.so
+          name: build-${{ matrix.os }}
+          path: |
+            build/
             generated/java/*.class
-
-  create-release:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Create Release
-        run: |
-          echo "Use gh CLI or release action here"
