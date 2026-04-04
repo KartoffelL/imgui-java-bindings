@@ -1,7 +1,10 @@
-%module bindings
+%module imgui
 
 %{
-#include "include/build.h"
+#include "header.h"
 %}
 
-%include "include/build.h"
+%include "stdint.i"
+%include "stdbool.i"
+
+%include "header.h"
