@@ -10,10 +10,8 @@
 %ignore TextWrappedV;
 %ignore LabelTextV;
 %ignore BulletTextV;
-%ignore TreeNodeV_1_1SWIG_10;
-%ignore TreeNodeV_1_1SWIG_11;
-%ignore TreeNodeExV_1_1SWIG_10;
-%ignore TreeNodeExV_1_1SWIG_11;
+%ignore TreeNodeV;
+%ignore TreeNodeExV;
 %ignore SetTooltipV;
 %ignore SetItemTooltipV;
 %ignore LogTextV;
