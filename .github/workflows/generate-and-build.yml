@@ -124,7 +124,7 @@ jobs:
 
       - name: Compile Java classes
         run: |
-          javac generated/java/*.java
+          javac include/java/*.java
 
       - name: Upload build outputs (debug)
         uses: actions/upload-artifact@v4
