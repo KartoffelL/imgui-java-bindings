@@ -2,5 +2,5 @@
 	path = include/ImGuiColorTextEdit
 	url = https://github.com/goossens/ImGuiColorTextEdit
 [submodule "imgui"]
-	path = imgui
+	path = include/imgui/imgui
 	url = https://github.com/ocornut/imgui
