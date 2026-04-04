@@ -1,0 +1,55 @@
+name: Generate and Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-bindings:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Scapix
+        run: |
+          # Commands to install and setup Scapix
+          # Example: sudo apt-get install scapix
+
+      - name: Generate Java Bindings
+        run: |
+          scapix generate include/build.h
+
+  build:
+    runs-on: ${{ matrix.os }}
+    needs: generate-bindings
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: |
+          # Commands to install any required dependencies
+
+      - name: Compile C++ Code
+        run: |
+          # Commands to compile the C++ code here
+
+      - name: Add to Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: path/to/built/artifacts
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create Release
+        id: create_release
+        run: |
+          # Commands to create a GitHub release using GitHub CLI
