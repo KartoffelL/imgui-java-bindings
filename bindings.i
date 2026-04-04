@@ -1,5 +1,7 @@
 %module imgui
 
+%ignore ...;
+
 %{
 #include "imgui/imgui.h"
 %}
