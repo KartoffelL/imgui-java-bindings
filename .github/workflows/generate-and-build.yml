@@ -33,10 +33,10 @@ jobs:
           swig -c++ -java \
                -package imgui \
                -outdir generated/java \
-               -o include/wrapper.cpp \
+               -o generated/wrapper.cpp \
                -Iinclude \
                bindings.i
-               ls include
+          ls include
 
       - name: Upload generated files (debug)
         uses: actions/upload-artifact@v4
@@ -55,12 +55,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
 
       - name: Download generated bindings
         uses: actions/download-artifact@v4
         with:
           name: generated-bindings
-          path: generated/
+          path: include/
 
       - name: Set up Java
         uses: actions/setup-java@v4
