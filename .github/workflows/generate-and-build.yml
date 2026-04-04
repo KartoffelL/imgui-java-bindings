@@ -10,14 +10,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Scapix
+      - name: Install SWIG
         run: |
-          # Commands to install and setup Scapix
-          # Example: sudo apt-get install scapix
+          sudo apt-get update
+          sudo apt-get install -y swig
 
       - name: Generate Java Bindings
         run: |
-          scapix generate include/build.h
+          mkdir -p generated
+          swig -c++ -java -package com.example.bindings \
+               -outdir generated/java \
+               -o generated/wrapper.cpp \
+               bindings.i
 
   build:
     runs-on: ${{ matrix.os }}
@@ -25,22 +29,48 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install Dependencies
+      - name: Install SWIG (Linux/macOS)
+        if: runner.os != 'Windows'
         run: |
-          # Commands to install any required dependencies
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo apt-get update && sudo apt-get install -y swig
+          else
+            brew install swig
+          fi
+
+      - name: Install SWIG (Windows)
+        if: runner.os == 'Windows'
+        run: choco install swig
+
+      - name: Generate Bindings
+        run: |
+          mkdir -p generated
+          swig -c++ -java -package com.example.bindings \
+               -outdir generated/java \
+               -o generated/wrapper.cpp \
+               bindings.i
 
       - name: Compile C++ Code
         run: |
-          # Commands to compile the C++ code here
+          g++ -fPIC -c generated/wrapper.cpp -o wrapper.o
+          g++ -fPIC -c src/your_code.cpp -o your_code.o
+          g++ -shared wrapper.o your_code.o -o libnative.so
+
+      - name: Compile Java Code
+        run: |
+          javac generated/java/*.java
 
       - name: Add to Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: path/to/built/artifacts
+          artifacts: |
+            libnative.so
+            generated/java/*.class
 
   create-release:
     runs-on: ubuntu-latest
@@ -50,6 +80,5 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Create Release
-        id: create_release
         run: |
-          # Commands to create a GitHub release using GitHub CLI
+          echo "Use gh CLI or release action here"
