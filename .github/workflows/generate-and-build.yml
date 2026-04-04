@@ -18,7 +18,7 @@ jobs:
       - name: Generate Java Bindings
         run: |
           mkdir -p generated
-          swig -c++ -java -package com.example.bindings \
+          swig -c++ -java -package imgui \
                -outdir generated/java \
                -o generated/wrapper.cpp \
                bindings.i
@@ -50,7 +50,7 @@ jobs:
       - name: Generate Bindings
         run: |
           mkdir -p generated
-          swig -c++ -java -package com.example.bindings \
+          swig -c++ -java -package imgui \
                -outdir generated/java \
                -o generated/wrapper.cpp \
                bindings.i
