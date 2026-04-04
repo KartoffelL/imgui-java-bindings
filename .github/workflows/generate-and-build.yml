@@ -24,6 +24,7 @@ jobs:
 
       - name: Generate Java Bindings
         run: |
+          ls include
           mkdir -p generated/java
 
           swig -c++ -java \
