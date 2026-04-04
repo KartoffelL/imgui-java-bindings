@@ -10,6 +10,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
 
       - name: Install SWIG
         run: |
@@ -24,7 +27,7 @@ jobs:
 
       - name: Generate Java Bindings
         run: |
-          ls include
+          ls include/imgui
           mkdir -p generated/java
 
           swig -c++ -java \
