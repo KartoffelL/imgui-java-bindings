@@ -1,7 +1,7 @@
 %module imgui
 
 %{
-#include "header.h"
+#include "imgui/imgui.h"
 %}
 
-%include "header.h"
+%include "imgui/imgui.h"
