@@ -36,6 +36,7 @@ jobs:
                -o include/wrapper.cpp \
                -Iinclude \
                bindings.i
+               ls include
 
       - name: Upload generated files (debug)
         uses: actions/upload-artifact@v4
