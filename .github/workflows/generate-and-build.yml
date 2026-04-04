@@ -100,17 +100,17 @@ jobs:
             g++ -shared -o build/native.dll \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
-              generated/wrapper.cpp src/your_code.cpp
+              generated/wrapper.cpp include/build.cpp
           elif [ "$RUNNER_OS" = "macOS" ]; then
             g++ -dynamiclib -fPIC -o build/libnative.dylib \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
-              generated/wrapper.cpp src/your_code.cpp
+              generated/wrapper.cpp include/build.cpp
           else
             g++ -shared -fPIC -o build/libnative.so \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
-              generated/wrapper.cpp src/your_code.cpp
+              generated/wrapper.cpp include/build.cpp
           fi
         shell: bash
 
