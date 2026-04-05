@@ -87,6 +87,7 @@ jobs:
           java-version: 17
 
       - name: Set JNI paths
+        shell: bash
         run: |
           echo "JNI_INCLUDE=$JAVA_HOME/include" >> $GITHUB_ENV
 
@@ -95,9 +96,9 @@ jobs:
           else
             echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
           fi
-        shell: bash
 
       - name: Compile native
+        shell: bash
         run: |
           mkdir -p build/native
 
