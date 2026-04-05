@@ -100,21 +100,26 @@ jobs:
             echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
           fi
 
-      - name: Compile native
+      - name: Compile native fully self-contained (fixed)
         shell: bash
         run: |
           mkdir -p build/native
-
+      
+          CXXFLAGS="-O2 -Wall -Wextra -std=c++17"
+      
           if [ "$RUNNER_OS" = "Windows" ]; then
-            g++ -shared -o build/native/imgui.dll \
+            g++ -m64 $CXXFLAGS -shared -static -static-libgcc -static-libstdc++ \
+              -o build/native/imgui.dll \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
               -Iinclude -Iinclude/imgui \
               generated/wrapper.cpp \
-              include/build.cpp
-
+              include/build.cpp \
+              -Wl,--kill-at
+      
           else
-            g++ -shared -fPIC -o build/native/libimgui.so \
+            g++ -m64 $CXXFLAGS -shared -fPIC -static -static-libgcc -static-libstdc++ \
+              -o build/native/libimgui.so \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
               -Iinclude -Iinclude/imgui \
@@ -142,15 +147,35 @@ jobs:
 
   release:
     needs: [generate-bindings, build-natives]
-    if: startsWith(github.ref, 'refs/tags/v') # if tag starts with "v"
+    if: startsWith(github.ref, 'refs/tags/v') # only run on version tags
     runs-on: ubuntu-latest
-
+  
     steps:
+      # Checkout repo to include Java sources or built jar
+      - uses: actions/checkout@v3
+  
+      # Download previously built artifacts (Java + natives)
       - uses: actions/download-artifact@v4
         with:
           path: dist
-
+  
+      # Organize release bundle
+      - name: Prepare Release Bundle
+        run: |
+          mkdir -p release
+          # Copy the Java JAR
+          cp dist/my-library.jar release/
+          # Copy native libraries
+          cp dist/native/* release/
+  
+          # Optional: list contents to verify
+          echo "Release bundle contents:"
+          ls -l release
+  
+      # Create GitHub Release including both Java and natives
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*
+          files: release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
