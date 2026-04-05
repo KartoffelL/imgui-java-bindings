@@ -107,10 +107,7 @@ jobs:
               -I"$JNI_PLATFORM" \
               -Iinclude -Iinclude/imgui \
               generated/wrapper.cpp \
-              include/imgui/imgui.cpp \
-              include/imgui/imgui_draw.cpp \
-              include/imgui/imgui_widgets.cpp \
-              include/imgui/imgui_tables.cpp
+              include/build.cpp
 
           else
             g++ -shared -fPIC -o build/native/libimgui.so \
@@ -118,10 +115,7 @@ jobs:
               -I"$JNI_PLATFORM" \
               -Iinclude -Iinclude/imgui \
               generated/wrapper.cpp \
-              include/imgui/imgui.cpp \
-              include/imgui/imgui_draw.cpp \
-              include/imgui/imgui_widgets.cpp \
-              include/imgui/imgui_tables.cpp
+              include/build.cpp
           fi
         shell: bash
 
