@@ -7,8 +7,7 @@
 #include "imgui/imgui_widgets.cpp"
 
 //ImGuiColorTextEdit files
-
-#include "ImGuiColorTextEdit/TextEditor.cpp"
 #include "ImGuiColorTextEdit/TextEditor.h"
-#include "ImGuiColorTextEdit/TextDiff.cpp"
 #include "ImGuiColorTextEdit/TextDiff.h"
+#include "ImGuiColorTextEdit/TextEditor.cpp"
+#include "ImGuiColorTextEdit/TextDiff.cpp"
