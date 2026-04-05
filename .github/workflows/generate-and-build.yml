@@ -118,7 +118,6 @@ jobs:
               generated/wrapper.cpp \
               include/build.cpp
           fi
-        shell: bash
 
       - name: Package native JAR
         run: |
