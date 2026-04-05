@@ -71,19 +71,19 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Install SWIG (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y swig
+      # - name: Install SWIG (Linux)
+      #   if: runner.os == 'Linux'
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y swig
 
-      - name: Install SWIG (macOS)
-        if: runner.os == 'macOS'
-        run: brew install swig
+      # - name: Install SWIG (macOS)
+      #   if: runner.os == 'macOS'
+      #   run: brew install swig
 
-      - name: Install SWIG (Windows)
-        if: runner.os == 'Windows'
-        run: choco install swig
+      # - name: Install SWIG (Windows)
+      #   if: runner.os == 'Windows'
+      #   run: choco install swig
 
       - name: Set JNI include paths
         id: jni
@@ -108,17 +108,17 @@ jobs:
             g++ -shared -o build/native.dll \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
-              include/wrapper.cpp include/imgui/imgui.cpp
+              include/wrapper.cpp include/build.cpp
           elif [ "$RUNNER_OS" = "macOS" ]; then
             g++ -dynamiclib -fPIC -o build/libnative.dylib \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
-              include/wrapper.cpp include/imgui/imgui.cpp
+              include/wrapper.cpp include/build.cpp
           else
             g++ -shared -fPIC -o build/libnative.so \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
-              include/wrapper.cpp include/imgui/imgui.cpp
+              include/wrapper.cpp include/build.cpp
           fi
         shell: bash
 
@@ -132,4 +132,4 @@ jobs:
           name: build-${{ matrix.os }}
           path: |
             build/
-            generated/java/*.class
+            include/java/*.class
