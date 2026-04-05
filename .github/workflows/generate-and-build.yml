@@ -165,7 +165,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p release/jar_contents
-          cp dist/native/* release/jar_contents/
+          cp dist/* release/jar_contents/
           cp -r dist/generated/java release/jar_contents/
           cd release/jar_contents
           jar cf ../imgui-bundle.jar *
