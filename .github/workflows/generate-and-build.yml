@@ -120,6 +120,7 @@ jobs:
           fi
 
       - name: Package native JAR
+        shell: bash
         run: |
           mkdir -p jar/imgui
 
