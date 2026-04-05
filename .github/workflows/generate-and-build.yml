@@ -62,8 +62,8 @@ jobs:
         with:
           name: base
           path: |
-            generated/
-            build/
+            generated/*
+            build/*
 #            dist/imgui.jar
 
   build-natives:
