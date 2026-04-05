@@ -1,0 +1,181 @@
+name: Build and Release (SWIG JNI)
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*.*.*'   # matches semantic version tags like v0.1.35
+
+jobs:
+  generate-bindings:
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Generate version
+        id: version
+        run: echo "version=0.1.${GITHUB_RUN_NUMBER}" >> $GITHUB_OUTPUT
+
+      - name: Install SWIG
+        run: sudo apt-get update && sudo apt-get install -y swig
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Generate bindings
+        run: |
+          mkdir -p generated/java/imgui
+
+          swig -c++ -java \
+            -package imgui \
+            -outdir generated/java/imgui \
+            -o generated/wrapper.cpp \
+            -Iinclude \
+            bindings.i
+
+      - name: Copy handwritten classes
+        run: |
+          mkdir -p build
+          cp -a src/. generated/
+          cp -a src/. build/
+
+      - name: Compile Java
+        run: |
+          javac -d build $(find generated/java -name "*.java")
+
+      - name: Create base JAR
+        run: |
+          mkdir -p dist
+          jar cf dist/imgui.jar -C build .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: base
+          path: |
+            generated/
+            dist/imgui.jar
+
+  build-natives:
+    needs: generate-bindings
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: base
+          path: .
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set JNI paths
+        shell: bash
+        run: |
+          echo "JNI_INCLUDE=$JAVA_HOME/include" >> $GITHUB_ENV
+
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            echo "JNI_PLATFORM=$JAVA_HOME/include/linux" >> $GITHUB_ENV
+          else
+            echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
+          fi
+
+      - name: Compile native fully self-contained (fixed)
+        shell: bash
+        run: |
+          mkdir -p build/native
+      
+          CXXFLAGS="-O2 -Wall -Wextra -std=c++17"
+      
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            g++ -shared -static-libgcc -static -static-libstdc++ \
+              -o build/native/imgui.dll \
+              -I"$JNI_INCLUDE" \
+              -I"$JNI_PLATFORM" \
+              -Iinclude -Iinclude/imgui \
+              generated/wrapper.cpp \
+              include/build.cpp \
+              -Wl,--kill-at
+      
+          else
+            g++ -shared -fPIC -static-libgcc -static-libstdc++ \
+              -o build/native/libimgui.so \
+              -I"$JNI_INCLUDE" \
+              -I"$JNI_PLATFORM" \
+              -Iinclude -Iinclude/imgui \
+              generated/wrapper.cpp \
+              include/build.cpp
+          fi
+
+      - name: Package native JAR
+        shell: bash
+        run: |
+          mkdir -p jar/imgui
+
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            cp build/native/imgui.dll jar/imgui/
+            jar cf dist/imgui-natives-windows.jar -C jar .
+          else
+            cp build/native/libimgui.so jar/imgui/
+            jar cf dist/imgui-natives-linux.jar -C jar .
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: natives-${{ matrix.os }}
+          path: dist/
+
+  release:
+    needs: [generate-bindings, build-natives]
+    if: startsWith(github.ref, 'refs/tags/v') # only run on version tags
+    runs-on: ubuntu-latest
+  
+    steps:
+      # Checkout repo to include Java sources or built jar
+      - uses: actions/checkout@v3
+  
+      # Download previously built artifacts (Java + natives)
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+  
+      # Organize release bundle
+      - name: Prepare Release Bundle
+        run: |
+          mkdir -p release
+          # Copy the Java JAR
+          cp dist/my-library.jar release/
+          # Copy native libraries
+          cp dist/native/* release/
+  
+          # Optional: list contents to verify
+          echo "Release bundle contents:"
+          ls -l release
+  
+      # Create GitHub Release including both Java and natives
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
