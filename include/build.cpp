@@ -8,5 +8,7 @@
 
 //ImGuiColorTextEdit files
 
-#include "ImGuiColorTextEdit/TextDiff.cpp"
 #include "ImGuiColorTextEdit/TextEditor.cpp"
+#include "ImGuiColorTextEdit/TextEditor.h"
+#include "ImGuiColorTextEdit/TextDiff.cpp"
+#include "ImGuiColorTextEdit/TextDiff.h"
