@@ -1,4 +1,4 @@
-name: Generate and Build (SWIG)
+name: Build and Release (SWIG JNI)
 
 on:
   workflow_dispatch:
@@ -7,129 +7,147 @@ jobs:
   generate-bindings:
     runs-on: ubuntu-latest
 
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: true
-          fetch-depth: 0
+
+      - name: Generate version
+        id: version
+        run: echo "version=0.1.${GITHUB_RUN_NUMBER}" >> $GITHUB_OUTPUT
 
       - name: Install SWIG
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y swig
+        run: sudo apt-get update && sudo apt-get install -y swig
 
-      - name: Set up Java (for JNI headers)
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Generate Java Bindings
+      - name: Generate bindings
         run: |
-          ls include/imgui
           mkdir -p generated/java
 
           swig -c++ -java \
-               -package imgui \
-               -outdir generated/java \
-               -o generated/wrapper.cpp \
-               -Iinclude \
-               bindings.i
-          ls include
+            -package imgui \
+            -outdir generated/java \
+            -o generated/wrapper.cpp \
+            -Iinclude \
+            bindings.i
 
-      - name: Upload generated files (debug)
+      - name: Compile Java
+        run: |
+          javac -d build/classes generated/java/imgui/*.java
+
+      - name: Create base JAR
+        run: |
+          mkdir -p dist
+          jar cf dist/imgui.jar -C build/classes .
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: generated-bindings
-          path: generated/
+          name: base
+          path: |
+            generated/
+            dist/imgui.jar
 
-  build:
-    runs-on: ${{ matrix.os }}
+  build-natives:
     needs: generate-bindings
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest] #[ubuntu-latest, macos-latest, windows-latest] excluded macos
+        os: [ubuntu-latest, windows-latest]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: true
-          fetch-depth: 0
 
-      - name: Download generated bindings
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
-          name: generated-bindings
-          path: include/
+          name: base
+          path: .
 
-      - name: Set up Java
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      # - name: Install SWIG (Linux)
-      #   if: runner.os == 'Linux'
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y swig
-
-      # - name: Install SWIG (macOS)
-      #   if: runner.os == 'macOS'
-      #   run: brew install swig
-
-      # - name: Install SWIG (Windows)
-      #   if: runner.os == 'Windows'
-      #   run: choco install swig
-
-      - name: Set JNI include paths
-        id: jni
+      - name: Set JNI paths
         run: |
-          echo "JAVA_HOME=$JAVA_HOME"
           echo "JNI_INCLUDE=$JAVA_HOME/include" >> $GITHUB_ENV
 
           if [ "$RUNNER_OS" = "Linux" ]; then
             echo "JNI_PLATFORM=$JAVA_HOME/include/linux" >> $GITHUB_ENV
-          elif [ "$RUNNER_OS" = "macOS" ]; then
-            echo "JNI_PLATFORM=$JAVA_HOME/include/darwin" >> $GITHUB_ENV
           else
             echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
           fi
         shell: bash
 
-      - name: Compile native library
+      - name: Compile native
         run: |
-          mkdir -p build
+          mkdir -p build/native
 
           if [ "$RUNNER_OS" = "Windows" ]; then
-            g++ -shared -o build/native.dll \
+            g++ -shared -o build/native/imgui.dll \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
-              include/wrapper.cpp include/build.cpp
-          elif [ "$RUNNER_OS" = "macOS" ]; then
-            g++ -dynamiclib -fPIC -o build/libnative.dylib \
-              -I"$JNI_INCLUDE" \
-              -I"$JNI_PLATFORM" \
-              include/wrapper.cpp include/build.cpp
+              -Iinclude -Iinclude/imgui \
+              generated/wrapper.cpp \
+              include/imgui/imgui.cpp \
+              include/imgui/imgui_draw.cpp \
+              include/imgui/imgui_widgets.cpp \
+              include/imgui/imgui_tables.cpp
+
           else
-            g++ -shared -fPIC -o build/libnative.so \
+            g++ -shared -fPIC -o build/native/libimgui.so \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
-              include/wrapper.cpp include/build.cpp
+              -Iinclude -Iinclude/imgui \
+              generated/wrapper.cpp \
+              include/imgui/imgui.cpp \
+              include/imgui/imgui_draw.cpp \
+              include/imgui/imgui_widgets.cpp \
+              include/imgui/imgui_tables.cpp
           fi
         shell: bash
 
-      - name: Compile Java classes
+      - name: Package native JAR
         run: |
-          javac include/java/*.java
+          mkdir -p jar/imgui
 
-      - name: Upload build outputs (debug)
-        uses: actions/upload-artifact@v4
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            cp build/native/imgui.dll jar/imgui/
+            jar cf dist/imgui-natives-windows.jar -C jar .
+          else
+            cp build/native/libimgui.so jar/imgui/
+            jar cf dist/imgui-natives-linux.jar -C jar .
+          fi
+
+      - uses: actions/upload-artifact@v4
         with:
-          name: build-${{ matrix.os }}
-          path: |
-            build/
-            include/java/*.class
+          name: natives-${{ matrix.os }}
+          path: dist/
+
+  release:
+    needs: [generate-bindings, build-natives]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.generate-bindings.outputs.version }}
+          name: Release v${{ needs.generate-bindings.outputs.version }}
+          files: dist/**/*
