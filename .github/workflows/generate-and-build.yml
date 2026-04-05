@@ -47,7 +47,7 @@ jobs:
 
       - name: Compile Java
         run: |
-          javac -d build generated/java/*.java
+          javac -d build $(find generated/java -name "*.java")
 
       - name: Create base JAR
         run: |
