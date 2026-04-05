@@ -2,6 +2,7 @@
 
 %{
 #include "imgui/imgui.h"
+#include "ImGuiColorTextEdit/TextDiff.h"
 %}
 
 %ignore TextV;
@@ -19,3 +20,4 @@
 %ignore appendfv;
 
 %include "imgui/imgui.h"
+%include "ImGuiColorTextEdit/TextDiff.h"
