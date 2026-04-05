@@ -183,6 +183,13 @@ jobs:
           cd ..
           echo "Release bundle contents:"
           jar tf imgui-bundle.jar
+
+      - name: Upload release
+        uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: |
+            release/imgui-bundle.jar
   
       # Create GitHub Release including both Java and natives
       - name: Create Release
