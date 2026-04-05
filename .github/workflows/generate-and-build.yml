@@ -1,5 +1,8 @@
 name: Build and Release (SWIG JNI)
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
   push:
