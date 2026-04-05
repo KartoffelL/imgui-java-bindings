@@ -108,7 +108,7 @@ jobs:
           CXXFLAGS="-O2 -Wall -Wextra -std=c++17"
       
           if [ "$RUNNER_OS" = "Windows" ]; then
-            g++ -shared -static -static-libgcc -static-libstdc++ \
+            g++ -shared -static-libgcc -static-libstdc++ \
               -o build/native/imgui.dll \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
