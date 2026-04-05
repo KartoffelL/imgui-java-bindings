@@ -42,8 +42,8 @@ jobs:
       - name: Copy handwritten classes
         run: |
           mkdir -p build
-          cp -a src/. /generated/
-          cp -a src/. /build/
+          cp -a src/. generated/
+          cp -a src/. build/
 
       - name: Compile Java
         run: |
