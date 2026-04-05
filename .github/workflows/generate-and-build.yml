@@ -174,7 +174,7 @@ jobs:
         run: |
           mkdir -p release/jar_contents
           cp -a natives/. release/jar_contents/
-          cp -a base/build. release/jar_contents/
+          cp -a base/build/. release/jar_contents/
           cd release/jar_contents
           jar cf ../imgui-bundle.jar *
           cd ..
