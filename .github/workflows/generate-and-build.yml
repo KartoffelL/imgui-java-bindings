@@ -52,10 +52,10 @@ jobs:
         run: |
           javac -d build $(find generated/java -name "*.java")
 
-      - name: Create base JAR
-        run: |
-          mkdir -p dist
-          jar cf dist/imgui.jar -C build .
+      # - name: Create base JAR
+      #   run: |
+      #     mkdir -p dist
+      #     jar cf dist/imgui.jar -C build .
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -63,7 +63,8 @@ jobs:
           name: base
           path: |
             generated/
-            dist/imgui.jar
+            build/
+#            dist/imgui.jar
 
   build-natives:
     needs: generate-bindings
@@ -127,23 +128,23 @@ jobs:
               include/build.cpp
           fi
 
-      - name: Package native JAR
-        shell: bash
-        run: |
-          mkdir -p jar/imgui
+      # - name: Package native JAR
+      #   shell: bash
+      #   run: |
+      #     mkdir -p jar/imgui
 
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            cp build/native/imgui.dll jar/imgui/
-            jar cf dist/imgui-natives-windows.jar -C jar .
-          else
-            cp build/native/libimgui.so jar/imgui/
-            jar cf dist/imgui-natives-linux.jar -C jar .
-          fi
+      #     if [ "$RUNNER_OS" = "Windows" ]; then
+      #       cp build/native/imgui.dll jar/imgui/
+      #       jar cf dist/imgui-natives-windows.jar -C jar .
+      #     else
+      #       cp build/native/libimgui.so jar/imgui/
+      #       jar cf dist/imgui-natives-linux.jar -C jar .
+      #     fi
 
       - uses: actions/upload-artifact@v4
         with:
           name: natives-${{ matrix.os }}
-          path: dist/
+          path: build/native
 
   release:
     needs: [generate-bindings, build-natives]
@@ -161,21 +162,21 @@ jobs:
   
       # Organize release bundle
       - name: Prepare Release Bundle
+        shell: bash
         run: |
-          mkdir -p release
-          # Copy the Java JAR
-          cp dist/my-library.jar release/
-          # Copy native libraries
-          cp dist/native/* release/
-  
-          # Optional: list contents to verify
+          mkdir -p release/jar_contents
+          cp dist/native/* release/jar_contents/
+          cp -r dist/generated/java release/jar_contents/
+          cd release/jar_contents
+          jar cf ../imgui-bundle.jar *
+          cd ..
           echo "Release bundle contents:"
-          ls -l release
+          jar tf imgui-bundle.jar
   
       # Create GitHub Release including both Java and natives
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: release/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          files: release/imgui-bundle.jar
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
