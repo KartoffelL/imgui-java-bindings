@@ -5,3 +5,8 @@
 #include "imgui/imgui_draw.cpp"
 #include "imgui/imgui_tables.cpp"
 #include "imgui/imgui_widgets.cpp"
+
+//ImGuiColorTextEdit files
+
+#include "ImGuiColorTextEdit/TextDiff.cpp"
+#include "ImGuiColorTextEdit/TextEditor.cpp"
