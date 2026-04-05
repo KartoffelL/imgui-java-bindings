@@ -30,23 +30,29 @@ jobs:
 
       - name: Generate bindings
         run: |
-          mkdir -p generated/java
+          mkdir -p generated/java/imgui
 
           swig -c++ -java \
             -package imgui \
-            -outdir generated/java \
+            -outdir generated/java/imgui \
             -o generated/wrapper.cpp \
             -Iinclude \
             bindings.i
 
+      - name: Copy handwritten classes
+        run: |
+          mkdir -p build
+          cp -a /src/. /generated/
+          cp -a /src/. /build/
+
       - name: Compile Java
         run: |
-          javac -d build/classes generated/java/imgui/*.java
+          javac -d build generated/java/*.java
 
       - name: Create base JAR
         run: |
           mkdir -p dist
-          jar cf dist/imgui.jar -C build/classes .
+          jar cf dist/imgui.jar -C build .
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
