@@ -2,6 +2,9 @@ name: Build and Release (SWIG JNI)
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - 'v*.*.*'   # matches semantic version tags like v0.1.35
 
 jobs:
   generate-bindings:
@@ -149,6 +152,5 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.generate-bindings.outputs.version }}
-          name: Release v${{ needs.generate-bindings.outputs.version }}
+          tag_name: ${{ github.ref_name }}
           files: dist/**/*
