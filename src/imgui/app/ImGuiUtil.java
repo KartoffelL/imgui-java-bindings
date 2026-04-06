@@ -1,4 +1,4 @@
-package imgui.app;
+package ImGui.app;
 
 import imguijb.*;
 
@@ -79,7 +79,7 @@ public class ImGuiUtil {
 
         @Override
         protected MemorySegment reallocate(MemorySegment oldData, int oldCapacity, int newCapacity) {
-            MemorySegment newData = MemorySegment.ofAddress(getSWIGTYPE_p_void(imgui.MemAlloc(newCapacity * elementSize())))
+            MemorySegment newData = MemorySegment.ofAddress(getSWIGTYPE_p_void(ImGui.MemAlloc(newCapacity * elementSize())))
                     .reinterpret(newCapacity * elementSize());
             if (oldData != null) {
                 long bytesToCopy = (long) oldCapacity * elementSize();
@@ -137,7 +137,7 @@ public class ImGuiUtil {
 
         @Override
         protected MemorySegment reallocate(MemorySegment oldData, int oldCapacity, int newCapacity) {
-            MemorySegment newData = MemorySegment.ofAddress(getSWIGTYPE_p_void(imgui.MemAlloc(newCapacity * elementSize())))
+            MemorySegment newData = MemorySegment.ofAddress(getSWIGTYPE_p_void(ImGui.MemAlloc(newCapacity * elementSize())))
                     .reinterpret(newCapacity * elementSize());
             if (oldData != null) {
                 long bytesToCopy = (long) oldCapacity * elementSize();
@@ -194,7 +194,7 @@ public class ImGuiUtil {
 
         @Override
         protected MemorySegment reallocate(MemorySegment oldData, int oldCapacity, int newCapacity) {
-            MemorySegment newData = MemorySegment.ofAddress(getSWIGTYPE_p_void(imgui.MemAlloc(newCapacity * elementSize())))
+            MemorySegment newData = MemorySegment.ofAddress(getSWIGTYPE_p_void(ImGui.MemAlloc(newCapacity * elementSize())))
                     .reinterpret(newCapacity * elementSize());
             if (oldData != null) {
                 long bytesToCopy = (long) oldCapacity * elementSize();
@@ -252,7 +252,7 @@ public class ImGuiUtil {
         @Override
         protected MemorySegment reallocate(MemorySegment oldData, int oldCapacity, int newCapacity) {
             // ⚠️ Ideally call ImGui::MemAlloc if resizing ImGui-owned vectors
-            MemorySegment newData = MemorySegment.ofAddress(getSWIGTYPE_p_void(imgui.MemAlloc(newCapacity * elementSize())))
+            MemorySegment newData = MemorySegment.ofAddress(getSWIGTYPE_p_void(ImGui.MemAlloc(newCapacity * elementSize())))
                     .reinterpret(newCapacity * elementSize());
 
             if (oldData != null) {
@@ -319,7 +319,7 @@ public class ImGuiUtil {
 
         @Override
         protected MemorySegment reallocate(MemorySegment oldData, int oldCapacity, int newCapacity) {
-            MemorySegment newData = MemorySegment.ofAddress(getSWIGTYPE_p_void(imgui.MemAlloc(newCapacity * elementSize())))
+            MemorySegment newData = MemorySegment.ofAddress(getSWIGTYPE_p_void(ImGui.MemAlloc(newCapacity * elementSize())))
                     .reinterpret(newCapacity * elementSize());
 
             if (oldData != null) {
@@ -694,8 +694,8 @@ public class ImGuiUtil {
 
     public static void doImGuiDum() {
             PrintStream pw = System.out;
-            pw.println("Version " + imgui.GetVersion() + " @ time " + imgui.GetTime());
-            var io = imgui.GetIO();
+            pw.println("Version " + ImGui.GetVersion() + " @ time " + ImGui.GetTime());
+            var io = ImGui.GetIO();
             IO.println("IO:");
             pw.println("-Backend flags: " + Integer.toBinaryString(io.getBackendFlags()));
             pw.println("-Config flags: " + Integer.toBinaryString(io.getConfigFlags()));
@@ -704,7 +704,7 @@ public class ImGuiUtil {
             pw.println("-DisplaySize: " + g(io.getDisplaySize()));
             pw.println("-Backend Platform name: " + io.getBackendPlatformName());
             pw.println("-Backend Renderer name: " + io.getBackendRendererName());
-            var pio = imgui.GetPlatformIO();
+            var pio = ImGui.GetPlatformIO();
             IO.println("Platform IO:");
             var monitors = new ImGuiPlatformMonitorVector(pio.getMonitors());
             pw.println("-Monitors("+monitors.size()+"):");
