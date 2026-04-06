@@ -2,7 +2,7 @@ package imgui.app;
 
 import imgui.app.glfw.ImGuiImplGlfw;
 import imguijb.ImGuiConfigFlags_;
-import imguijb.imgui;
+import imguijb.ImGui;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
