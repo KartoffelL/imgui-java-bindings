@@ -7,6 +7,11 @@ import org.lwjgl.system.MemoryUtil;
 import java.lang.foreign.Arena;
 import java.lang.foreign.ValueLayout;
 
+/*
+ * This Class contains some often used functions when using the ImGui library.
+ * Loading this class will also statically load the native libraries.
+ *
+*/
 public class ImUtil {
 
 
