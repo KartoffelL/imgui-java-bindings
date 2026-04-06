@@ -47,6 +47,10 @@ public class ImUtil {
      */
     public static class ImInt extends SWIGTYPE_p_int {
         private final Arena arena;
+        public ImInt(long address, Arena arena, boolean owned){
+            super(address, owned);
+            this.arena = arena;
+        }
         public ImInt(){
             var arena = Arena.ofAuto();
             super(arena.allocate(4).address(), true);
@@ -67,9 +71,15 @@ public class ImUtil {
             return arena;
         }
     }
-
+    /**
+     * Represents an ImGui Float Pointer
+     */
     public static class ImFloat extends SWIGTYPE_p_float {
         private final Arena arena;
+        public ImFloat(long address, Arena arena, boolean owned){
+            super(address, owned);
+            this.arena = arena;
+        }
         public ImFloat(){
             var arena = Arena.ofAuto();
             super(arena.allocate(4).address(), true);
@@ -92,9 +102,15 @@ public class ImUtil {
             return arena;
         }
     }
-
+    /**
+     * Represents an ImGui Double Pointer
+     */
     public static class ImDouble extends SWIGTYPE_p_double{
         private final Arena arena;
+        public ImDouble(long address, Arena arena, boolean owned){
+            super(address, owned);
+            this.arena = arena;
+        }
         public ImDouble(){
             var arena = Arena.ofAuto();
             super(arena.allocate(8).address(), true);
@@ -117,8 +133,15 @@ public class ImUtil {
             return arena;
         }
     }
+    /**
+     * Represents an ImGui Byte Pointer
+     */
     public static class ImByte extends SWIGTYPE_p_p_char {
         private final Arena arena;
+        public ImByte(long address, Arena arena, boolean owned){
+            super(address, owned);
+            this.arena = arena;
+        }
         public ImByte(){
             var arena = Arena.ofAuto();
             super(arena.allocate(1).address(), true);
@@ -141,9 +164,15 @@ public class ImUtil {
             return arena;
         }
     }
-
+    /**
+     * Represents an ImGui Boolean Pointer
+     */
     public static class ImBool extends SWIGTYPE_p_bool {
         private final Arena arena;
+        public ImBool(long address, Arena arena, boolean owned){
+            super(address, owned);
+            this.arena = arena;
+        }
         public ImBool(){
             var arena = Arena.ofAuto();
             super(arena.allocate(1).address(), true);
