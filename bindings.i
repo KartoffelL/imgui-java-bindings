@@ -7,12 +7,9 @@
 
 %include "enumtypeunsafe.swg"
 %include "std_vector.i"
+%include "various.i"
 
 %javaconst(1);
-
-%typemap(jni) char *, char *&, char[ANY], char[]               "jbyteArray"
-%typemap(jtype) char *, char *&, char[ANY], char[]               "byte[]"
-%typemap(jstype) char *, char *&, char[ANY], char[]               "byte[]"
 
 %ignore TextV;
 %ignore TextColoredV;
