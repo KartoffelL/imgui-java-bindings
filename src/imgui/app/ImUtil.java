@@ -60,7 +60,7 @@ public class ImUtil {
      * @param y the y
      * @return
      */
-    public static ImVec2 ImVec4(float x, float y, float z, float w) {
+    public static ImVec4 ImVec4(float x, float y, float z, float w) {
         vc4sI++;
         if(vc4sI == vc4s.length)
             vc4sI = 0;
