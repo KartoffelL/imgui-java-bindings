@@ -2,6 +2,7 @@ package imgui.app;
 
 import imguijb.*;
 
+import java.io.PrintStream;
 import java.lang.foreign.*;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -10,7 +11,7 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 
 /**
- * Class containing callbacks. The argument / return types should be inferred from the class name (thanks, SWIG)
+ * Contains some more implementation-specific classes and functions (eg. callback implementations, thanks SWIG : ]). This area is mainly undocumented and should be used with care.
  */
 public class ImGuiUtil {
 
