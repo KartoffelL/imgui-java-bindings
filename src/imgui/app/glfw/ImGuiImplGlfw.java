@@ -1,7 +1,7 @@
-package imgui.app.glfw;
+package ImGui.app.glfw;
 
 import imguijb.*;
-import imgui.app.ImGuiUtil;
+import ImGui.app.ImGuiUtil;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.*;
 import org.lwjgl.system.Callback;
@@ -389,7 +389,7 @@ public class ImGuiImplGlfw {
     // X11 does not include current pressed/released modifier key in 'mods' flags submitted by GLFW
     // See https://github.com/ocornut/imgui/issues/6034 and https://github.com/glfw/glfw/issues/1630
     protected void updateKeyModifiers(final long window) {
-        final ImGuiIO io = imgui.GetIO();
+        final ImGuiIO io = ImGui.GetIO();
         io.AddKeyEvent(ImGuiKey.ImGuiMod_Ctrl, (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS));
         io.AddKeyEvent(ImGuiKey.ImGuiMod_Shift, (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS));
         io.AddKeyEvent(ImGuiKey.ImGuiMod_Alt, (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS));
@@ -407,7 +407,7 @@ public class ImGuiImplGlfw {
 
         updateKeyModifiers(window);
 
-        final ImGuiIO io = imgui.GetIO();
+        final ImGuiIO io = ImGui.GetIO();
         if (button >= 0 && button < ImGuiMouseButton_.ImGuiMouseButton_COUNT) {
             io.AddMouseButtonEvent(button, action == GLFW_PRESS);
         }
@@ -418,7 +418,7 @@ public class ImGuiImplGlfw {
             data.prevUserCallbackScroll.invoke(window, xOffset, yOffset);
         }
 
-        final ImGuiIO io = imgui.GetIO();
+        final ImGuiIO io = ImGui.GetIO();
         io.AddMouseWheelEvent((float) xOffset, (float) yOffset);
     }
 
@@ -482,7 +482,7 @@ public class ImGuiImplGlfw {
 
         final int key = translateUntranslatedKey(keycode, scancode);
 
-        final ImGuiIO io = imgui.GetIO();
+        final ImGuiIO io = ImGui.GetIO();
         final var imguiKey = glfwKeyToImGuiKey(key);
         io.AddKeyEvent(imguiKey, (action == GLFW_PRESS));
         io.SetKeyEventNativeData(imguiKey, key, scancode); // To support legacy indexing (<1.87 user code)
@@ -493,7 +493,7 @@ public class ImGuiImplGlfw {
             data.prevUserCallbackWindowFocus.invoke(window, focused);
         }
 
-        imgui.GetIO().AddFocusEvent(focused);
+        ImGui.GetIO().AddFocusEvent(focused);
     }
 
     public void cursorPosCallback(final long window, final double x, final double y) {
@@ -504,7 +504,7 @@ public class ImGuiImplGlfw {
         float posX = (float) x;
         float posY = (float) y;
 
-        final ImGuiIO io = imgui.GetIO();
+        final ImGuiIO io = ImGui.GetIO();
         if ((io.getConfigFlags()&ImGuiConfigFlags_.ImGuiConfigFlags_ViewportsEnable)!=0) { //Flag does not exist anymore
             glfwGetWindowPos(window, props.windowX, props.windowY);
             posX += props.windowX[0];
@@ -523,7 +523,7 @@ public class ImGuiImplGlfw {
             data.prevUserCallbackCursorEnter.invoke(window, entered);
         }
 
-        final ImGuiIO io = imgui.GetIO();
+        final ImGuiIO io = ImGui.GetIO();
 
         if (entered) {
             data.mouseWindow = window;
@@ -542,7 +542,7 @@ public class ImGuiImplGlfw {
             data.prevUserCallbackChar.invoke(window, c);
         }
 
-        imgui.GetIO().AddInputCharacter(c);
+        ImGui.GetIO().AddInputCharacter(c);
     }
 
     public void monitorCallback(final long window, final int event) {
@@ -602,7 +602,7 @@ public class ImGuiImplGlfw {
     }
 
     public boolean init(final long window, final boolean installCallbacks) {
-        final ImGuiIO io = imgui.GetIO();
+        final ImGuiIO io = ImGui.GetIO();
 
         io.setBackendPlatformName("imgui-java_impl_glfw");
         io.setBackendFlags(io.getBackendFlags()|ImGuiBackendFlags_.ImGuiBackendFlags_HasMouseCursors | ImGuiBackendFlags_.ImGuiBackendFlags_HasSetMousePos/* | ImGuiBackendFlags_.PlatformHasViewports*/); //Viewport flags are not present anymore
@@ -653,7 +653,7 @@ public class ImGuiImplGlfw {
         glfwSetMonitorCallback(this::monitorCallback);
 
         // Our mouse update function expect PlatformHandle to be filled for the main viewport
-        final ImGuiViewport mainViewport = imgui.GetMainViewport();
+        final ImGuiViewport mainViewport = ImGui.GetMainViewport();
         mainViewport.setPlatformHandle(ImGuiUtil.newSWIGTYPE_p_void(window));
         if (IS_WINDOWS) {
             mainViewport.setPlatformHandleRaw(ImGuiUtil.newSWIGTYPE_p_void(GLFWNativeWin32.glfwGetWin32Window(window)));
@@ -669,7 +669,7 @@ public class ImGuiImplGlfw {
     }
 
     public void shutdown() {
-        final ImGuiIO io = imgui.GetIO();
+        final ImGuiIO io = ImGui.GetIO();
 
         shutdownPlatformInterface();
 
@@ -690,8 +690,8 @@ public class ImGuiImplGlfw {
     }
 
     protected void updateMouseData() {
-        final ImGuiIO io = imgui.GetIO();
-        final ImGuiPlatformIO platformIO = imgui.GetPlatformIO();
+        final ImGuiIO io = ImGui.GetIO();
+        final ImGuiPlatformIO platformIO = ImGui.GetPlatformIO();
 
         int mouseViewportId = 0;
         var mp = io.getMousePos();
@@ -759,14 +759,14 @@ public class ImGuiImplGlfw {
     }
 
     protected void updateMouseCursor() {
-        final ImGuiIO io = imgui.GetIO();
+        final ImGuiIO io = ImGui.GetIO();
 
         if ((io.getBackendFlags()&ImGuiConfigFlags_.ImGuiConfigFlags_NoMouseCursorChange) !=0 || glfwGetInputMode(data.window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
             return;
         }
 
-        final int imguiCursor = imgui.GetMouseCursor();
-        final ImGuiPlatformIO platformIO = imgui.GetPlatformIO();
+        final int imguiCursor = ImGui.GetMouseCursor();
+        final ImGuiPlatformIO platformIO = ImGui.GetPlatformIO();
         final ImGuiUtil.ImGuiViewportVector viewports = new ImGuiUtil.ImGuiViewportVector(platformIO.getViewports());
         for (int n = 0; n < viewports.size(); n++) {
             final long windowPtr = ImGuiUtil.getSWIGTYPE_p_void(viewports.get(n).getPlatformHandle());
@@ -799,7 +799,7 @@ public class ImGuiImplGlfw {
     }
 
     protected void updateGamepads() {
-        final ImGuiIO io = imgui.GetIO();
+        final ImGuiIO io = ImGui.GetIO();
 
         if ((io.getConfigFlags() & ImGuiConfigFlags_.ImGuiConfigFlags_NavEnableGamepad) == 0) {
             return;
@@ -864,7 +864,7 @@ public class ImGuiImplGlfw {
     }
 
     protected void updateMonitors() {
-        final ImGuiPlatformIO platformIO = imgui.GetPlatformIO();
+        final ImGuiPlatformIO platformIO = ImGui.GetPlatformIO();
         data.wantUpdateMonitors = false;
 
         final PointerBuffer monitors = glfwGetMonitors();
@@ -939,7 +939,7 @@ public class ImGuiImplGlfw {
     }
 
     public void newFrame() {
-        final ImGuiIO io = imgui.GetIO();
+        final ImGuiIO io = ImGui.GetIO();
 
         // Setup display size (every frame to accommodate for window resizing)
         glfwGetWindowSize(data.window, props.windowW, props.windowH);
@@ -991,7 +991,7 @@ public class ImGuiImplGlfw {
     }
 
     private void windowCloseCallback(final long windowId) {
-        final ImGuiViewport vp = imgui.FindViewportByPlatformHandle(ImGuiUtil.newSWIGTYPE_p_void(windowId));
+        final ImGuiViewport vp = ImGui.FindViewportByPlatformHandle(ImGuiUtil.newSWIGTYPE_p_void(windowId));
         if (vp != null) {
             vp.setPlatformRequestClose(true);
         }
@@ -1004,14 +1004,14 @@ public class ImGuiImplGlfw {
     // Because the event doesn't always fire on glfwSetWindowXXX() we use a frame counter tag to only
     // ignore recent glfwSetWindowXXX() calls.
     private void windowPosCallback(final long windowId, final int xPos, final int yPos) {
-        final ImGuiViewport vp = imgui.FindViewportByPlatformHandle(ImGuiUtil.newSWIGTYPE_p_void(windowId));
+        final ImGuiViewport vp = ImGui.FindViewportByPlatformHandle(ImGuiUtil.newSWIGTYPE_p_void(windowId));
         if (vp == null) {
             return;
         }
 
         final ViewportData vd = getUserData(ImGuiUtil.getSWIGTYPE_p_void(vp.getPlatformUserData()));
         if (vd != null) {
-            final boolean ignoreEvent = (imgui.GetFrameCount() <= vd.ignoreWindowPosEventFrame + 1);
+            final boolean ignoreEvent = (ImGui.GetFrameCount() <= vd.ignoreWindowPosEventFrame + 1);
             if (ignoreEvent) {
                 return;
             }
@@ -1021,14 +1021,14 @@ public class ImGuiImplGlfw {
     }
 
     private void windowSizeCallback(final long windowId, final int width, final int height) {
-        final ImGuiViewport vp = imgui.FindViewportByPlatformHandle(ImGuiUtil.newSWIGTYPE_p_void(windowId));
+        final ImGuiViewport vp = ImGui.FindViewportByPlatformHandle(ImGuiUtil.newSWIGTYPE_p_void(windowId));
         if (vp == null) {
             return;
         }
 
         final ViewportData vd = getUserData(ImGuiUtil.getSWIGTYPE_p_void(vp.getPlatformUserData()));
         if (vd != null) {
-            final boolean ignoreEvent = (imgui.GetFrameCount() <= vd.ignoreWindowSizeEventFrame + 1);
+            final boolean ignoreEvent = (ImGui.GetFrameCount() <= vd.ignoreWindowSizeEventFrame + 1);
             if (ignoreEvent) {
                 return;
             }
@@ -1179,7 +1179,7 @@ public class ImGuiImplGlfw {
             if (vd == null) {
                 return;
             }
-            vd.ignoreWindowPosEventFrame = imgui.GetFrameCount();
+            vd.ignoreWindowPosEventFrame = ImGui.GetFrameCount();
             glfwSetWindowPos(vd.window, (int) value.getX(), (int) value.getY());
         }
     }
@@ -1242,7 +1242,7 @@ public class ImGuiImplGlfw {
                 glfwGetWindowSize(vd.window, width, height);
                 glfwSetWindowPos(vd.window, x[0], y[0] - height[0] + (int) value.getY());
             }
-            vd.ignoreWindowSizeEventFrame = imgui.GetFrameCount();
+            vd.ignoreWindowSizeEventFrame = ImGui.GetFrameCount();
             glfwSetWindowSize(vd.window, (int) value.getX(), (int) value.getY());
         }
     }
@@ -1359,7 +1359,7 @@ public class ImGuiImplGlfw {
     }
 
     protected void initPlatformInterface() {
-        final ImGuiPlatformIO platformIO = imgui.GetPlatformIO();
+        final ImGuiPlatformIO platformIO = ImGui.GetPlatformIO();
 
         // Register platform interface (will be coupled with a renderer interface)
         platformIO.setPlatform_CreateWindow(new ImGuiUtil.SWIGTYPE_p_f_p_ImGuiViewport__voidImpl(new CreateWindowFunction(), Arena.global()));
@@ -1380,7 +1380,7 @@ public class ImGuiImplGlfw {
 
         // Register main window handle (which is owned by the main application, not by us)
         // This is mostly for simplicity and consistency, so that our code (e.g. mouse handling etc.) can use same logic for main and secondary viewports.
-        final ImGuiViewport mainViewport = imgui.GetMainViewport();
+        final ImGuiViewport mainViewport = ImGui.GetMainViewport();
         final ViewportData vd = new ViewportData();
         final long vd_ = putUserData(vd);
         vd.window = data.window;
@@ -1390,6 +1390,6 @@ public class ImGuiImplGlfw {
     }
 
     protected void shutdownPlatformInterface() {
-        imgui.DestroyPlatformWindows();
+        ImGui.DestroyPlatformWindows();
     }
 }
