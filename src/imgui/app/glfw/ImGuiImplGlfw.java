@@ -132,14 +132,14 @@ public class ImGuiImplGlfw {
 
 
     protected  SWIGTYPE_p_f_p_void__p_char getClipboardTextFn() {
-        return new ImGuiUtil.SWIGTYPE_p_f_p_void__p_charImpl((_)->{
+        return new ImGuiUtil.SWIGTYPE_p_f_p_void__p_charImpl((seg)->{
             long str = nglfwGetClipboardString(data.window);
             return MemorySegment.ofAddress(str);
         }, Arena.global());
     }
 
     protected SWIGTYPE_p_f_p_void_p_q_const__char__void setClipboardTextFn() {
-        return new ImGuiUtil.SWIGTYPE_p_f_p_void_p_q_const__char__voidImpl((_, str)->{
+        return new ImGuiUtil.SWIGTYPE_p_f_p_void_p_q_const__char__voidImpl((seg, str)->{
             GLFW.nglfwSetClipboardString(data.window, str.address());
             return MemorySegment.NULL;
         }, Arena.global());
