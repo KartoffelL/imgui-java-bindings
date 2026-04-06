@@ -692,7 +692,51 @@ public class ImGuiUtil {
 
 
 
-
+    public static void doImGuiDum() {
+            PrintStream pw = System.out;
+            pw.println("Version " + imgui.GetVersion() + " @ time " + imgui.GetTime());
+            var io = imgui.GetIO();
+            IO.println("IO:");
+            pw.println("-Backend flags: " + Integer.toBinaryString(io.getBackendFlags()));
+            pw.println("-Config flags: " + Integer.toBinaryString(io.getConfigFlags()));
+            pw.println("-Keymods: " + Integer.toBinaryString(io.getKeyMods()));
+            pw.println("-DisplayFramebufferScale: " + g(io.getDisplayFramebufferScale()));
+            pw.println("-DisplaySize: " + g(io.getDisplaySize()));
+            pw.println("-Backend Platform name: " + io.getBackendPlatformName());
+            pw.println("-Backend Renderer name: " + io.getBackendRendererName());
+            var pio = imgui.GetPlatformIO();
+            IO.println("Platform IO:");
+            var monitors = new ImGuiPlatformMonitorVector(pio.getMonitors());
+            pw.println("-Monitors("+monitors.size()+"):");
+            for(var m : monitors) {
+                pw.println("--" + getSWIGTYPE_p_void(m.getPlatformHandle()));
+                pw.println("---Main Pos: "+ g(m.getMainPos()));
+                pw.println("---Main Size: "+ g(m.getMainSize()));
+                pw.println("---Work Pos: "+ g(m.getWorkPos()));
+                pw.println("---Work Size: "+ g(m.getWorkSize()));
+                pw.println("---DPI scale: "+ m.getDpiScale());
+            }
+            var viewports = new ImGuiViewportVector(pio.getViewports());
+            pw.println("-Viewports("+viewports.size()+"):");
+            for(var v : viewports) {
+                pw.println("--" + v.GetDebugName() + " (" + v.getID()+")");
+                pw.println("---Pos: "+ g(v.getPos()));
+                pw.println("---Size: "+ g(v.getSize()));
+                pw.println("---Work Pos: "+ g(v.getWorkPos()));
+                pw.println("---Work Size: "+ g(v.getWorkSize()));
+                pw.println("---DPI scale: "+ v.getDpiScale());
+                pw.println("---Framebuffer Scale: "+ g(v.getFramebufferScale()));
+                pw.println("---Flags: "+Integer.toBinaryString(v.getFlags()));
+                pw.println("---Platform Handle: " + getSWIGTYPE_p_void(v.getPlatformHandle()) + " (" + getSWIGTYPE_p_void(v.getPlatformHandleRaw())+")");
+            }
+    
+    
+    
+        }
+    
+        private static String g(ImVec2 v) {
+            return v == null ? "null" : String.format("[%s, %s]", v.getX(), v.getY());
+        }
 
 
 
