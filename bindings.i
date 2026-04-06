@@ -22,23 +22,24 @@
 %include "enumtypeunsafe.swg"
 %javaconst(1);
 
-// Typemap to convert C++ char* in/out buffers to Java ByteBuffer
-%typemap(jstype, in, out) char* "java.nio.ByteBuffer"
-
-%typemap(jni, in) char* {
-    if (!$input.isDirect()) {
+// Tell SWIG to use ByteBuffer for char* input/output buffers
+%typemap(jstype) char* "java.nio.ByteBuffer"
+%typemap(jni) char* (java.nio.ByteBuffer buf) %{
+    if (!buf.isDirect()) {
         SWIG_JavaThrowException(env, SWIG_JavaIllegalArgumentException, "ByteBuffer must be direct");
         return 0;
     }
-    $jnicall = (char*) $input.address();
-}
+    $jnicall = (char*) buf.address();
+%}
 
-%typemap(javaout) char* {
-    // Nothing needed; ByteBuffer is updated in place
-}
+// No javaout needed; changes happen in-place
+%typemap(javaout) char* %{
+    // nothing; direct ByteBuffer is already updated
+%}
 
-// Apply in/out handling with buffer size
+// Apply in/out pattern for buffers
 %apply (char* INOUT, size_t BUFFER_SIZE) { (char* buf, size_t buf_size) };
+
 
 %include "imgui/imgui.h"
 %include "ImGuiColorTextEdit/TextEditor.h"
