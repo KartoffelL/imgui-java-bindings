@@ -8,11 +8,11 @@
 
 // Dear ImGui backend
 
-#include "glfw/include/GLFW/glfw3.h"
-#include "glfw/include/GLFW/glfw3native.h"
+// #include "glfw/include/GLFW/glfw3.h" //Compiling glfw would make things a lot more complicated
+// #include "glfw/include/GLFW/glfw3native.h"
 
 #include "imgui/backends/imgui_impl_opengl3.cpp"
-#include "imgui/backends/imgui_impl_glfw.cpp"
+// #include "imgui/backends/imgui_impl_glfw.cpp"
 
 //ImGuiColorTextEdit files
 #include "ImGuiColorTextEdit/TextEditor.cpp"
