@@ -1,5 +1,8 @@
 name: Build and Release (SWIG JNI)
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
   push:
@@ -33,11 +36,11 @@ jobs:
 
       - name: Generate bindings
         run: |
-          mkdir -p generated/java/imgui
+          mkdir -p generated/java/imguijb
 
           swig -c++ -java \
-            -package imgui \
-            -outdir generated/java/imgui \
+            -package imguijb \
+            -outdir generated/java/imguijb \
             -o generated/wrapper.cpp \
             -Iinclude \
             bindings.i
@@ -52,18 +55,19 @@ jobs:
         run: |
           javac -d build $(find generated/java -name "*.java")
 
-      - name: Create base JAR
-        run: |
-          mkdir -p dist
-          jar cf dist/imgui.jar -C build .
+      # - name: Create base JAR
+      #   run: |
+      #     mkdir -p dist
+      #     jar cf dist/imgui.jar -C build .
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: base
           path: |
-            generated/
-            dist/imgui.jar
+            generated/*
+            build/*
+#            dist/imgui.jar
 
   build-natives:
     needs: generate-bindings
@@ -126,24 +130,11 @@ jobs:
               generated/wrapper.cpp \
               include/build.cpp
           fi
-
-      - name: Package native JAR
-        shell: bash
-        run: |
-          mkdir -p jar/imgui
-
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            cp build/native/imgui.dll jar/imgui/
-            jar cf dist/imgui-natives-windows.jar -C jar .
-          else
-            cp build/native/libimgui.so jar/imgui/
-            jar cf dist/imgui-natives-linux.jar -C jar .
-          fi
-
+          
       - uses: actions/upload-artifact@v4
         with:
           name: natives-${{ matrix.os }}
-          path: dist/
+          path: build/native
 
   release:
     needs: [generate-bindings, build-natives]
@@ -153,29 +144,44 @@ jobs:
     steps:
       # Checkout repo to include Java sources or built jar
       - uses: actions/checkout@v3
-  
-      # Download previously built artifacts (Java + natives)
+      
       - uses: actions/download-artifact@v4
         with:
-          path: dist
+          name: base
+          path: base
+      - uses: actions/download-artifact@v4
+        with:
+          name: natives-ubuntu-latest
+          path: natives
+      - uses: actions/download-artifact@v4
+        with:
+          name: natives-windows-latest
+          path: natives
   
       # Organize release bundle
       - name: Prepare Release Bundle
+        shell: bash
         run: |
-          mkdir -p release
-          # Copy the Java JAR
-          cp dist/my-library.jar release/
-          # Copy native libraries
-          cp dist/native/* release/
-  
-          # Optional: list contents to verify
+          mkdir -p release/jar_contents
+          cp -a natives/. release/jar_contents/
+          cp -a base/build/. release/jar_contents/
+          cd release/jar_contents
+          jar cf ../imgui-bundle.jar *
+          cd ..
           echo "Release bundle contents:"
-          ls -l release
+          jar tf imgui-bundle.jar
+
+      - name: Upload release
+        uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: |
+            release/imgui-bundle.jar
   
       # Create GitHub Release including both Java and natives
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: release/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          files: release/imgui-bundle.jar
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
