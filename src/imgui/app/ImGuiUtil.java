@@ -1,4 +1,4 @@
-package ImGui.app;
+package imgui.app;
 
 import imguijb.*;
 
