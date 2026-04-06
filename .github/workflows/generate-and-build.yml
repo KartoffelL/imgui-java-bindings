@@ -159,7 +159,7 @@ jobs:
           path: natives
   
       # Organize release bundle
-      - name: Prepare Release Bundle
+      - name: Generating release jar
         shell: bash
         run: |
           mkdir -p release/jar_contents
@@ -171,17 +171,33 @@ jobs:
           echo "Release bundle contents:"
           jar tf imgui-bundle.jar
 
-      - name: Upload release
-        uses: actions/upload-artifact@v4
-        with:
-          name: release
-          path: |
-            release/imgui-bundle.jar
+      - name: Generating source jar
+        shell: bash
+        run: |
+          mkdir -p release/jar_contents_source/imgui
+          cp -a base/generated/java. release/jar_contents_source/
+          cp -a base/generated/imgui. release/jar_contents_source/imgui
+          cd release/jar_contents_source
+          jar cf ../imgui-bundle-sources.jar *
+          cd ..
+          echo "Source bundle contents:"
+          jar tf imgui-bundle-sources.jar
+
+      # - name: Upload release
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: release
+      #     path: |
+      #       release/imgui-bundle.jar
+
+        
   
       # Create GitHub Release including both Java and natives
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: release/imgui-bundle.jar
+          files: |
+            release/imgui-bundle.jar
+            release/imgui-bundle-sources.jar
   #       env:
   #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
