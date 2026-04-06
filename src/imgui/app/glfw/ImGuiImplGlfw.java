@@ -1,7 +1,5 @@
 package imgui.app.glfw;
 
-import imguijb.*;
-import imgui.app.ImGuiUtil;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.*;
 import org.lwjgl.system.Callback;
@@ -12,6 +10,9 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Random;
+
+import imguijb.*;
+import imgui.app.ImGuiUtil;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
