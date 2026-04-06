@@ -1,4 +1,4 @@
-%module imgui
+%module ImGui
 
 %{
 #include "imgui/imgui.h"
