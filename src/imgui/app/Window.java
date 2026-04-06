@@ -49,7 +49,7 @@ public abstract class Window extends ImUtil{
         initImGui(config);
         imGuiGlfw.init(handle, true);
 //        imGuiGl3.init(glslVersion);
-        imgui.ImGui_ImplOpenGL3_Init();
+        ImGui.ImGui_ImplOpenGL3_Init();
     }
 
     /**
@@ -57,7 +57,7 @@ public abstract class Window extends ImUtil{
      */
     protected void dispose() {
 //        imGuiGl3.shutdown();
-        imgui.ImGui_ImplOpenGL3_Shutdown();
+        ImGui.ImGui_ImplOpenGL3_Shutdown();
         imGuiGlfw.shutdown();
         disposeImGui();
         disposeWindow();
@@ -137,7 +137,7 @@ public abstract class Window extends ImUtil{
      * @param config configuration object with basic window information
      */
     protected void initImGui(final Configuration config) {
-        imgui.CreateContext();
+        ImGui.CreateContext();
     }
 
     /**
@@ -192,9 +192,9 @@ public abstract class Window extends ImUtil{
     protected void startFrame() {
         clearBuffer();
 //        imGuiGl3.newFrame();
-        imgui.ImGui_ImplOpenGL3_NewFrame();
+        ImGui.ImGui_ImplOpenGL3_NewFrame();
         imGuiGlfw.newFrame();
-        imgui.NewFrame();
+        ImGui.NewFrame();
     }
 
     /**
@@ -202,17 +202,17 @@ public abstract class Window extends ImUtil{
      * It renders ImGui and swaps GLFW buffers to show an updated frame.
      */
     protected void endFrame() {
-        imgui.Render();
-//        imGuiGl3.renderDrawData(imgui.GetDrawData());
-        imgui.ImGui_ImplOpenGL3_RenderDrawData(imgui.GetDrawData());
+        ImGui.Render();
+//        imGuiGl3.renderDrawData(ImGui.GetDrawData());
+        ImGui.ImGui_ImplOpenGL3_RenderDrawData(ImGui.GetDrawData());
 
         // Update and Render additional Platform Windows
         // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
         //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-        if ((imgui.GetIO().getConfigFlags()& ImGuiConfigFlags_.ImGuiConfigFlags_ViewportsEnable) != 0) {
+        if ((ImGui.GetIO().getConfigFlags()& ImGuiConfigFlags_.ImGuiConfigFlags_ViewportsEnable) != 0) {
             final long backupCurrentContext = GLFW.glfwGetCurrentContext();
-            imgui.UpdatePlatformWindows();
-            imgui.RenderPlatformWindowsDefault();
+            ImGui.UpdatePlatformWindows();
+            ImGui.RenderPlatformWindowsDefault();
             GLFW.glfwMakeContextCurrent(backupCurrentContext);
         }
 
@@ -231,7 +231,7 @@ public abstract class Window extends ImUtil{
      * Method to destroy Dear ImGui context.
      */
     protected void disposeImGui() {
-        imgui.DestroyContext();
+        ImGui.DestroyContext();
     }
 
     /**
