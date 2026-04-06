@@ -1,8 +1,5 @@
 package imgui.app;
 
-import imgui.app.glfw.ImGuiImplGlfw;
-import imguijb.ImGuiConfigFlags_;
-import imguijb.ImGui;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -15,6 +12,9 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.nio.IntBuffer;
 import java.util.Objects;
+
+import imgui.app.glfw.ImGuiImplGlfw;
+import imguijb.*;
 
 /**
  * This is a somewhat modified version of a part of SpaiR's ImGui java library (https://github.com/SpaiR/imgui-java)
