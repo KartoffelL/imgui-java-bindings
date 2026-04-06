@@ -25,6 +25,9 @@
 %ignore DebugLogV;
 %ignore appendfv;
 
+%apply unsigned char *NIOBUFFER { unsigned char *buf };
+%apply char *NIOBUFFER { unsigned char *buf };
+
 
 %include "imgui/imgui.h"
 %include "ImGuiColorTextEdit/TextEditor.h"
