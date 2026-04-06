@@ -678,7 +678,7 @@ public class ImGuiImplGlfw {
         }
 
         for (int cursorN = 0; cursorN < ImGuiMouseCursor_.ImGuiMouseCursor_COUNT; cursorN++) {
-            glfwDestroyCursor(data.mouseCursors[cursorN]);
+            if(data.mouseCursors[cursorN] != 0) glfwDestroyCursor(data.mouseCursors[cursorN]);
         }
 
         io.setBackendPlatformName(null);
