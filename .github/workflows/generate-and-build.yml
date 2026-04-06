@@ -36,11 +36,11 @@ jobs:
 
       - name: Generate bindings
         run: |
-          mkdir -p generated/java/imgui
+          mkdir -p generated/java/imguijb
 
           swig -c++ -java \
-            -package imgui \
-            -outdir generated/java/imgui \
+            -package imguijb \
+            -outdir generated/java/imguijb \
             -o generated/wrapper.cpp \
             -Iinclude \
             bindings.i
