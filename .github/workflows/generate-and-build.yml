@@ -130,20 +130,7 @@ jobs:
               generated/wrapper.cpp \
               include/build.cpp
           fi
-
-      # - name: Package native JAR
-      #   shell: bash
-      #   run: |
-      #     mkdir -p jar/imgui
-
-      #     if [ "$RUNNER_OS" = "Windows" ]; then
-      #       cp build/native/imgui.dll jar/imgui/
-      #       jar cf dist/imgui-natives-windows.jar -C jar .
-      #     else
-      #       cp build/native/libimgui.so jar/imgui/
-      #       jar cf dist/imgui-natives-linux.jar -C jar .
-      #     fi
-
+          
       - uses: actions/upload-artifact@v4
         with:
           name: natives-${{ matrix.os }}
