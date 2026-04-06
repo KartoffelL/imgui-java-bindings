@@ -138,7 +138,6 @@ jobs:
 
   release:
     needs: [generate-bindings, build-natives]
-    if: startsWith(github.ref, 'refs/tags/v') # only run on version tags
     runs-on: ubuntu-latest
   
     steps:
@@ -194,6 +193,7 @@ jobs:
   
       # Create GitHub Release including both Java and natives
       - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v') # only run on version tags
         uses: softprops/action-gh-release@v2
         with:
           files: |
