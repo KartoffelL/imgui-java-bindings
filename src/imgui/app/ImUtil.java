@@ -22,29 +22,56 @@ public class ImUtil {
         ImGui.CreateContext();
     }
 
-    private static ImVec2[] vcs = new ImVec2[16];
-    private static int i = 0;
+    private static ImVec2[] vc2s = new ImVec2[16];
+    private static int vc2sI = 0;
     static {
-        for(int i = 0; i < vcs.length; i++)
-            vcs[i] = new ImVec2();
+        for(int i = 0; i < vc2s.length; i++)
+            vc2s[i] = new ImVec2();
     }
 
     /**
-     * Returns a cached ImVec2 that "is valid for the current invokation". This is meant to be invoked in functions like
+     * Returns a cached ImVec2 that "is valid for the current invocation". This is meant to be invoked in functions like
      * Begin to avoid generating too many objects.
      * @param x the x
      * @param y the y
      * @return
      */
     public static ImVec2 ImVec2(float x, float y) {
-        i++;
-        if(i == vcs.length)
-            i = 0;
-        var r = vcs[i];
+        vc2sI++;
+        if(vc2sI == vc2s.length)
+            vc2sI = 0;
+        var r = vc2s[vc2sI];
         r.setX(x);
         r.setY(y);
         return r;
     }
+
+    private static ImVec4[] vc4s = new ImVec4[16];
+    private static int vc4sI = 0;
+    static {
+        for(int i = 0; i < vc4s.length; i++)
+            vc4s[i] = new ImVec4();
+    }
+
+    /**
+     * Returns a cached ImVec4 that "is valid for the current invocation". This is meant to be invoked in functions like
+     * Begin to avoid generating too many objects.
+     * @param x the x
+     * @param y the y
+     * @return
+     */
+    public static ImVec2 ImVec4(float x, float y, float z, float w) {
+        vc4sI++;
+        if(vc4sI == vc4s.length)
+            vc4sI = 0;
+        var r = vc4s[vc4sI];
+        r.setX(x);
+        r.setY(y);
+        r.setZ(z);
+        r.setW(w);
+        return r;
+    }
+
 
 
     /**
