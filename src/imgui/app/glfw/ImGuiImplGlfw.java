@@ -1,7 +1,7 @@
 package imgui.app.glfw;
 
 import imguijb.*;
-import ImGui.app.ImGuiUtil;
+import imgui.app.ImGuiUtil;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.*;
 import org.lwjgl.system.Callback;
