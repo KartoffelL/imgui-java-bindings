@@ -18,7 +18,7 @@ public class ImGuiUtil {
     public static final MemoryLayout ImVec2_ = MemoryLayout.structLayout(ValueLayout.JAVA_FLOAT, ValueLayout.JAVA_FLOAT);
     public static final int ImVec2__ = Math.toIntExact(ImVec2_.byteSize());
 
-    public static final MemoryLayout ImGuiPlatformMonitor_ = MemoryLayout.structLayout(ImVec2_, ImVec2_, ValueLayout.JAVA_FLOAT, MemoryLayout.paddingLayout(4), ValueLayout.ADDRESS);
+    public static final MemoryLayout ImGuiPlatformMonitor_ = MemoryLayout.structLayout(ImVec2_, ImVec2_, ImVec2_, ImVec2_, ValueLayout.JAVA_FLOAT, MemoryLayout.paddingLayout(4), ValueLayout.ADDRESS);
 
     public static final MemoryLayout ImDrawVert_ = MemoryLayout.structLayout(ImVec2_, ImVec2_, ValueLayout.JAVA_INT);
     public static final int ImDrawVert__ = Math.toIntExact(ImDrawVert_.byteSize());
