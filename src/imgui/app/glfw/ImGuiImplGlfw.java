@@ -1,4 +1,4 @@
-package ImGui.app.glfw;
+package imgui.app.glfw;
 
 import imguijb.*;
 import ImGui.app.ImGuiUtil;
