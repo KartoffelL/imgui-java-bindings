@@ -175,8 +175,8 @@ jobs:
         shell: bash
         run: |
           mkdir -p release/jar_contents_source/imgui
-          cp -a base/generated/java. release/jar_contents_source/
-          cp -a base/generated/imgui. release/jar_contents_source/imgui
+          cp -a base/generated/java/. release/jar_contents_source/
+          cp -a base/generated/imgui/. release/jar_contents_source/imgui
           cd release/jar_contents_source
           jar cf ../imgui-bundle-sources.jar *
           cd ..
