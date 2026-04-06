@@ -22,5 +22,7 @@
 %include "enumtypeunsafe.swg"
 %javaconst(1);
 
+%apply (char* INOUT, size_t BUFFER_SIZE) { (char* buf, size_t buf_size) };
+
 %include "imgui/imgui.h"
 %include "ImGuiColorTextEdit/TextEditor.h"
