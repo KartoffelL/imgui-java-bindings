@@ -14,7 +14,7 @@ public class ImUtil {
     static {
 //        Library.loadSystem(System::load, System::loadLibrary, imgui.class, "imgui-java-bindings", Platform.mapLibraryNameBundled("imgui"));
         Library.loadSystem("imgui-java-binding", "imgui"); //Load native library via LWJGL's loading mechanism
-        imgui.CreateContext();
+        ImGui.CreateContext();
     }
 
     private static ImVec2[] vcs = new ImVec2[16];
