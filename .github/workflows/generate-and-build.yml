@@ -106,32 +106,66 @@ jobs:
             else
               echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
             fi
+          
+        - name: Build FreeType
+          shell: bash
+          run: |
+            git clone --depth=1 https://gitlab.freedesktop.org/freetype/freetype.git freetype
+            cd freetype
+  
+            if [ "${{ matrix.os }}" = "windows" ]; then
+              ./configure --host=x86_64-w64-mingw32 --enable-static --disable-shared
+              make -j
+            else
+              ./configure --enable-static --disable-shared
+              make -j
+            fi
+          
+        - name: Build plutosvg
+          shell: bash
+          run: |
+            git clone --depth=1 https://github.com/sammycage/plutosvg.git plutosvg
+            cd plutosvg
+  
+            if [ "${{ matrix.os }}" = "windows" ]; then
+              x86_64-w64-mingw32-gcc -c source/*.c
+              ar rcs libplutosvg.a *.o
+            else
+              gcc -c source/*.c
+              ar rcs libplutosvg.a *.o
+            fi
   
         - name: Compile native fully self-contained (fixed)
           shell: bash
           run: |
             mkdir -p build/native
-        
+
             CXXFLAGS="-O2 -Wall -Wextra -std=c++17"
-        
+            
             if [ "${{ matrix.os }}" = "windows" ]; then
               x86_64-w64-mingw32-g++ -shared -static-libgcc -static -static-libstdc++ \
                 -o build/native/imgui.dll \
                 -I"$JNI_INCLUDE" \
                 -I"$JNI_PLATFORM" \
                 -Iinclude -Iinclude/imgui \
-                generated/wrapper.cpp \
-                include/build.cpp \
+                -Ifreetype/include \
+                -Iplutosvg/source \
+                generated/wrapper.cpp
+                freetype/.libs/libfreetype.a \
+                plutosvg/libplutosvg.a \
                 -Wl,--kill-at
-        
+            
             else
               g++ -shared -fPIC -static-libgcc -static-libstdc++ \
                 -o build/native/libimgui.so \
                 -I"$JNI_INCLUDE" \
                 -I"$JNI_PLATFORM" \
                 -Iinclude -Iinclude/imgui \
-                generated/wrapper.cpp \
-                include/build.cpp
+                -Ifreetype/include \
+                -Iplutosvg/source \
+                generated/wrapper.cpp
+                freetype/.libs/libfreetype.a \
+                plutosvg/libplutosvg.a
             fi
             
         - uses: actions/upload-artifact@v4
