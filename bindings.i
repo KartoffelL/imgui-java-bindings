@@ -103,4 +103,4 @@
 %include "ImGuiColorTextEdit/TextEditor.h"
 
 %module ImGuiFreeType
-%include "imgui/misc/freetype/imgui_freetype.h"
+/*%include "imgui/misc/freetype/imgui_freetype.h"*/
