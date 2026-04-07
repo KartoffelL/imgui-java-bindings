@@ -18,7 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        submodules: true
+        submodules: recursive
 
     - name: Install dependencies
       run: |
@@ -28,24 +28,6 @@ jobs:
           cmake \
           mingw-w64 \
           autoconf automake libtool
-
-    # =========================
-    # Build FreeType
-    # =========================
-    - name: Build FreeType
-      shell: bash
-      run: |
-        cd include/freetype
-
-        if [ "${{ matrix.os }}" = "windows" ]; then
-          ./autogen.sh || true
-          ./configure --host=x86_64-w64-mingw32 --enable-static --disable-shared
-        else
-          ./autogen.sh || true
-          ./configure --enable-static --disable-shared
-        fi
-
-        make -j
 
     # =========================
     # Build plutosvg (CMake)
@@ -65,6 +47,29 @@ jobs:
         else
           cmake ../../include/plutosvg \
             -DBUILD_SHARED_LIBS=OFF
+        fi
+
+        make -j
+
+    # =========================
+    # Build FreeType
+    # =========================
+    - name: Build FreeType
+      shell: bash
+      run: |
+        cd include/freetype
+
+        if [ "${{ matrix.os }}" = "windows" ]; then
+          ./autogen.sh || true
+          ./configure \
+            --host=x86_64-w64-mingw32 \
+            --enable-static --disable-shared \
+            --without-png --without-bzip2 --without-harfbuzz
+        else
+          ./autogen.sh || true
+          ./configure \
+            --enable-static --disable-shared \
+            --without-png --without-bzip2 --without-harfbuzz
         fi
 
         make -j
