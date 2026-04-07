@@ -1,9 +1,11 @@
 %module ImGui
 
 %{
-#include "imgui/imgui.h"
-#include "ImGuiColorTextEdit/TextEditor.h"
-#include "imgui/backends/imgui_impl_opengl3.h"
+//#include "imgui/imgui.h"
+//#include "imgui/imgui.h"
+//#include "ImGuiColorTextEdit/TextEditor.h"
+//#include "imgui/backends/imgui_impl_opengl3.h"
+
 %}
 
 %include "enumtypeunsafe.swg"
