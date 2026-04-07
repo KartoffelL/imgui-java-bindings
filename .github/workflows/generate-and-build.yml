@@ -67,73 +67,78 @@ jobs:
           path: |
             generated/*
             build/*
-#            dist/imgui.jar
 
   build-natives:
-    needs: generate-bindings
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: base
-          path: .
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Set JNI paths
-        shell: bash
-        run: |
-          echo "JNI_INCLUDE=$JAVA_HOME/include" >> $GITHUB_ENV
-
-          if [ "$RUNNER_OS" = "Linux" ]; then
-            echo "JNI_PLATFORM=$JAVA_HOME/include/linux" >> $GITHUB_ENV
-          else
-            echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
-          fi
-
-      - name: Compile native fully self-contained (fixed)
-        shell: bash
-        run: |
-          mkdir -p build/native
-      
-          CXXFLAGS="-O2 -Wall -Wextra -std=c++17"
-      
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            g++ -shared -static-libgcc -static -static-libstdc++ \
-              -o build/native/imgui.dll \
-              -I"$JNI_INCLUDE" \
-              -I"$JNI_PLATFORM" \
-              -Iinclude -Iinclude/imgui \
-              generated/wrapper.cpp \                 #include/build.cpp \
-              -Wl,--kill-at
-      
-          else
-            g++ -shared -fPIC -static-libgcc -static-libstdc++ \
-              -o build/native/libimgui.so \
-              -I"$JNI_INCLUDE" \
-              -I"$JNI_PLATFORM" \
-              -Iinclude -Iinclude/imgui \
-              generated/wrapper.cpp  #include/build.cpp
-          fi
+      needs: generate-bindings
+      runs-on: ubuntu-latest
+  
+      strategy:
+        matrix:
+          os: [ubuntu, windows]
+  
+      steps:
+        - uses: actions/checkout@v4
+          with:
+            submodules: true
+  
+        - uses: actions/download-artifact@v4
+          with:
+            name: base
+            path: .
+  
+        - name: Setup Java
+          uses: actions/setup-java@v4
+          with:
+            distribution: temurin
+            java-version: 17
+  
+        - name: Install MinGW (for Windows cross-compilation)
+          if: matrix.os == 'windows'
+          run: sudo apt-get update && sudo apt-get install -y mingw-w64
+  
+        - name: Set JNI paths
+          shell: bash
+          run: |
+            echo "JNI_INCLUDE=$JAVA_HOME/include" >> $GITHUB_ENV
+  
+            if [ "${{ matrix.os }}" = "ubuntu" ]; then
+              echo "JNI_PLATFORM=$JAVA_HOME/include/linux" >> $GITHUB_ENV
+            else
+              echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
+            fi
+  
+        - name: Compile native fully self-contained (fixed)
+          shell: bash
+          run: |
+            mkdir -p build/native
+        
+            CXXFLAGS="-O2 -Wall -Wextra -std=c++17"
+        
+            if [ "${{ matrix.os }}" = "windows" ]; then
+              x86_64-w64-mingw32-g++ -shared -static-libgcc -static -static-libstdc++ \
+                -o build/native/imgui.dll \
+                -I"$JNI_INCLUDE" \
+                -I"$JNI_PLATFORM" \
+                -Iinclude -Iinclude/imgui \
+                generated/wrapper.cpp \
+                include/build.cpp \
+                -Wl,--kill-at
+        
+            else
+              g++ -shared -fPIC -static-libgcc -static-libstdc++ \
+                -o build/native/libimgui.so \
+                -I"$JNI_INCLUDE" \
+                -I"$JNI_PLATFORM" \
+                -Iinclude -Iinclude/imgui \
+                generated/wrapper.cpp \
+                include/build.cpp
+            fi
+            
+        - uses: actions/upload-artifact@v4
+          with:
+            name: natives-${{ matrix.os }}
+            path: build/native
           
-      - uses: actions/upload-artifact@v4
-        with:
-          name: natives-${{ matrix.os }}
-          path: build/native
-
   release:
     needs: [generate-bindings, build-natives]
     runs-on: ubuntu-latest
