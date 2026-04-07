@@ -117,8 +117,7 @@ jobs:
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
               -Iinclude -Iinclude/imgui \
-              generated/wrapper.cpp \
-              #include/build.cpp \
+              generated/wrapper.cpp \                 #include/build.cpp \
               -Wl,--kill-at
       
           else
@@ -127,8 +126,7 @@ jobs:
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
               -Iinclude -Iinclude/imgui \
-              generated/wrapper.cpp \
-              #include/build.cpp
+              generated/wrapper.cpp \  #include/build.cpp
           fi
           
       - uses: actions/upload-artifact@v4
