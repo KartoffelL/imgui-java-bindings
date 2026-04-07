@@ -64,7 +64,7 @@ jobs:
           ./configure \
             --host=x86_64-w64-mingw32 \
             --enable-static --disable-shared \
-            --without-png --without-bzip2 --without-harfbuzz
+            --without-zlib --without-png --without-bzip2 --without-harfbuzz
         else
           ./autogen.sh || true
           ./configure \
