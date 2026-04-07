@@ -90,16 +90,24 @@ jobs:
           cp include/freetype/objs/.libs/libfreetype.a build/artifacts/freetype-linux.a || true
         fi
 
-    # =========================
-    # Commit artifacts
-    # =========================
-    - name: Commit artifacts
-      run: |
-        git config user.name "github-actions"
-        git config user.email "github-actions@github.com"
 
-        git add build/artifacts
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dependency-build-${{ matrix.os }}-${{ github.run_number }}
+        path: |
+          build/*
 
-        git commit -m "Update native libs (${{ matrix.os }})" || echo "No changes"
+    # # =========================
+    # # Commit artifacts
+    # # =========================
+    # - name: Commit artifacts
+    #   run: |
+    #     git config user.name "github-actions"
+    #     git config user.email "github-actions@github.com"
 
-        git push
+    #     git add build/artifacts
+
+    #     git commit -m "Update native libs (${{ matrix.os }})" || echo "No changes"
+
+    #     git push
