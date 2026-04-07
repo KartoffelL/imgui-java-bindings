@@ -23,6 +23,10 @@
 #include "imgui/backends/imgui_impl_opengl3.cpp"
 // #include "imgui/backends/imgui_impl_glfw.cpp"
 
+//ImGui Font rendering related
+#include "imgui/misc/freetype/imgui_freetype.cpp"
+
+
 //ImGuiColorTextEdit files
 #include "ImGuiColorTextEdit/TextEditor.cpp"
 
@@ -96,4 +100,5 @@
 
 %include "imgui/imgui.h"
 %include "imgui/backends/imgui_impl_opengl3.h"
+%include "imgui/misc/freetype/imgui_freetype.h"
 %include "ImGuiColorTextEdit/TextEditor.h"
