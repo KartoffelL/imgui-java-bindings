@@ -69,13 +69,13 @@ jobs:
             build/*
 #            dist/imgui.jar
 
-build-natives:
+  build-natives:
     needs: generate-bindings
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        os: [ubuntu, windows]
+        os: [ubuntu-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -93,16 +93,12 @@ build-natives:
           distribution: temurin
           java-version: 17
 
-      - name: Install MinGW (for Windows cross-compilation)
-        if: matrix.os == 'windows'
-        run: sudo apt-get update && sudo apt-get install -y mingw-w64
-
       - name: Set JNI paths
         shell: bash
         run: |
           echo "JNI_INCLUDE=$JAVA_HOME/include" >> $GITHUB_ENV
 
-          if [ "${{ matrix.os }}" = "ubuntu" ]; then
+          if [ "$RUNNER_OS" = "Linux" ]; then
             echo "JNI_PLATFORM=$JAVA_HOME/include/linux" >> $GITHUB_ENV
           else
             echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
@@ -115,14 +111,13 @@ build-natives:
       
           CXXFLAGS="-O2 -Wall -Wextra -std=c++17"
       
-          if [ "${{ matrix.os }}" = "windows" ]; then
-            x86_64-w64-mingw32-g++ -shared -static-libgcc -static -static-libstdc++ \
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            g++ -shared -static-libgcc -static -static-libstdc++ \
               -o build/native/imgui.dll \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
               -Iinclude -Iinclude/imgui \
-              generated/wrapper.cpp \
-              include/build.cpp \
+              generated/wrapper.cpp \                 #include/build.cpp \
               -Wl,--kill-at
       
           else
@@ -131,8 +126,7 @@ build-natives:
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
               -Iinclude -Iinclude/imgui \
-              generated/wrapper.cpp \
-              include/build.cpp
+              generated/wrapper.cpp  #include/build.cpp
           fi
           
       - uses: actions/upload-artifact@v4
