@@ -1,4 +1,6 @@
 
+#include "imconfig.h" //Custom configuration for builds
+
 // Dear ImGui files
 #include "imgui/imgui.cpp"
 #include "imgui/imgui_demo.cpp"
