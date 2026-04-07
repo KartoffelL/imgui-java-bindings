@@ -107,20 +107,6 @@ jobs:
               echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
             fi
           
-        - name: Build FreeType
-          shell: bash
-          run: |
-            git clone --depth=1 https://gitlab.freedesktop.org/freetype/freetype.git freetype
-            cd freetype
-  
-            if [ "${{ matrix.os }}" = "windows" ]; then
-              ./configure --host=x86_64-w64-mingw32 --enable-static --disable-shared
-              make -j
-            else
-              ./configure --enable-static --disable-shared
-              make -j
-            fi
-          
         - name: Build plutosvg
           shell: bash
           run: |
