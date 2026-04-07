@@ -96,6 +96,7 @@
 %ignore DebugLogV;
 %ignore appendfv;
 
+%rename(ImGuiFreeType_SetAllocatorFunctions) ImGuiFreeType::SetAllocatorFunctions;
 
 
 %include "imgui/imgui.h"
