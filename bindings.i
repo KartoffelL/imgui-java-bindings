@@ -100,5 +100,7 @@
 
 %include "imgui/imgui.h"
 %include "imgui/backends/imgui_impl_opengl3.h"
-%include "imgui/misc/freetype/imgui_freetype.h"
 %include "ImGuiColorTextEdit/TextEditor.h"
+
+%module ImGuiFreeType
+%include "imgui/misc/freetype/imgui_freetype.h"
