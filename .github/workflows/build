@@ -1,0 +1,201 @@
+name: Build and Release (SWIG JNI)
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*.*.*'   # matches semantic version tags like v0.1.35
+
+jobs:
+  generate-bindings:
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Generate version
+        id: version
+        run: echo "version=0.1.${GITHUB_RUN_NUMBER}" >> $GITHUB_OUTPUT
+
+      - name: Install SWIG
+        run: sudo apt-get update && sudo apt-get install -y swig
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Generate bindings
+        run: |
+          mkdir -p generated/java/imguijb
+
+          swig -c++ -java \
+            -package imguijb \
+            -outdir generated/java/imguijb \
+            -o generated/wrapper.cpp \
+            -Iinclude \
+            bindings.i
+
+      - name: Copy handwritten classes
+        run: |
+          mkdir -p build
+          cp -a src/. generated/
+          cp -a src/. build/
+
+      - name: Compile Java
+        run: |
+          javac -cp "dependencies/*" -d build $(find generated -name "*.java")
+
+      # - name: Create base JAR
+      #   run: |
+      #     mkdir -p dist
+      #     jar cf dist/imgui.jar -C build .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: base
+          path: |
+            generated/*
+            build/*
+#            dist/imgui.jar
+
+  build-natives:
+    needs: generate-bindings
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: base
+          path: .
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set JNI paths
+        shell: bash
+        run: |
+          echo "JNI_INCLUDE=$JAVA_HOME/include" >> $GITHUB_ENV
+
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            echo "JNI_PLATFORM=$JAVA_HOME/include/linux" >> $GITHUB_ENV
+          else
+            echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
+          fi
+
+      - name: Compile native fully self-contained (fixed)
+        shell: bash
+        run: |
+          mkdir -p build/native
+      
+          CXXFLAGS="-O2 -Wall -Wextra -std=c++17"
+      
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            g++ -shared -static-libgcc -static -static-libstdc++ \
+              -o build/native/imgui.dll \
+              -I"$JNI_INCLUDE" \
+              -I"$JNI_PLATFORM" \
+              -Iinclude -Iinclude/imgui \
+              generated/wrapper.cpp \                 #include/build.cpp \
+              -Wl,--kill-at
+      
+          else
+            g++ -shared -fPIC -static-libgcc -static-libstdc++ \
+              -o build/native/libimgui.so \
+              -I"$JNI_INCLUDE" \
+              -I"$JNI_PLATFORM" \
+              -Iinclude -Iinclude/imgui \
+              generated/wrapper.cpp  #include/build.cpp
+          fi
+          
+      - uses: actions/upload-artifact@v4
+        with:
+          name: natives-${{ matrix.os }}
+          path: build/native
+
+  release:
+    needs: [generate-bindings, build-natives]
+    runs-on: ubuntu-latest
+  
+    steps:
+      # Checkout repo to include Java sources or built jar
+      - uses: actions/checkout@v3
+      
+      - uses: actions/download-artifact@v4
+        with:
+          name: base
+          path: base
+      - uses: actions/download-artifact@v4
+        with:
+          name: natives-ubuntu-latest
+          path: natives
+      - uses: actions/download-artifact@v4
+        with:
+          name: natives-windows-latest
+          path: natives
+  
+      # Organize release bundle
+      - name: Generating release jar
+        shell: bash
+        run: |
+          mkdir -p release/jar_contents
+          cp -a natives/. release/jar_contents/
+          cp -a base/build/. release/jar_contents/
+          cd release/jar_contents
+          jar cf ../imgui-bundle.jar *
+          cd ..
+          echo "Release bundle contents:"
+          jar tf imgui-bundle.jar
+
+      - name: Generating source jar
+        shell: bash
+        run: |
+          mkdir -p release/jar_contents_source/imgui
+          cp -a base/generated/java/. release/jar_contents_source/
+          cp -a base/generated/imgui/. release/jar_contents_source/imgui
+          cd release/jar_contents_source
+          jar cf ../imgui-bundle-sources.jar *
+          cd ..
+          echo "Source bundle contents:"
+          jar tf imgui-bundle-sources.jar
+
+      - name: Upload release
+        uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: |
+            release/*
+
+      
+  
+      # Create GitHub Release including both Java and natives
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v') # only run on version tags
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/imgui-bundle.jar
+            release/imgui-bundle-sources.jar
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
