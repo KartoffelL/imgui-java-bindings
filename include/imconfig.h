@@ -86,14 +86,14 @@
 // Requires FreeType headers to be available in the include path. Requires program to be compiled with 'misc/freetype/imgui_freetype.cpp' (in this repository) + the FreeType library (not provided).
 // Note that imgui_freetype.cpp may be used _without_ this define, if you manually call ImFontAtlas::SetFontLoader(). The define is simply a convenience.
 // On Windows you may use vcpkg with 'vcpkg install freetype --triplet=x64-windows' + 'vcpkg integrate install'.
-#define IMGUI_ENABLE_FREETYPE
+// #define IMGUI_ENABLE_FREETYPE
 
 //---- Use FreeType + plutosvg or lunasvg to render OpenType SVG fonts (SVGinOT)
 // Only works in combination with IMGUI_ENABLE_FREETYPE.
 // - plutosvg is currently easier to install, as e.g. it is part of vcpkg. It will support more fonts and may load them faster. See misc/freetype/README for instructions.
 // - Both require headers to be available in the include path + program to be linked with the library code (not provided).
 // - (note: lunasvg implementation is based on Freetype's rsvg-port.c which is licensed under CeCILL-C Free Software License Agreement)
-#define IMGUI_ENABLE_FREETYPE_PLUTOSVG
+// #define IMGUI_ENABLE_FREETYPE_PLUTOSVG
 //#define IMGUI_ENABLE_FREETYPE_LUNASVG
 
 //---- Use stb_truetype to build and rasterize the font atlas (default)
