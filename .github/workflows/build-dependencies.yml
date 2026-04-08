@@ -63,6 +63,7 @@ jobs:
         # Create build directories
         mkdir -p build/plutovg
         mkdir -p build/plutosvg
+        
     
         if [ "${{ matrix.os }}" = "windows" ]; then
           # Build PlutoVG first
@@ -75,6 +76,7 @@ jobs:
           mingw32-make -j
           # PlutoVG static library will be here:
           # build/plutovg/libplutovg.a
+          cd ..
           cd ..
     
           # Build PlutoSVG
@@ -90,6 +92,7 @@ jobs:
           # PlutoSVG static library will be here:
           # build/plutosvg/libplutosvg.a
           cd ..
+          cd ..
         else
           # Linux / macOS
           # Build PlutoVG
@@ -100,6 +103,7 @@ jobs:
           make -j
           # PlutoVG static library will be here:
           # build/plutovg/libplutovg.a
+          cd ..
           cd ..
     
           # Build PlutoSVG
@@ -112,6 +116,7 @@ jobs:
           make -j
           # PlutoSVG static library will be here:
           # build/plutosvg/libplutosvg.a
+          cd ..
           cd ..
         fi
 
