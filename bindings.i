@@ -68,12 +68,4 @@
 
 %rename(ImGuiFreeType_SetAllocatorFunctions) ImGuiFreeType::SetAllocatorFunctions;
 
-%include "imconfig.h" //Custom configuration for builds
-%include "imgui/imgui.h"
-%include "imgui/backends/imgui_impl_opengl3.h"
-
-%nspace ImGuiColorTextEdit;
-%include "ImGuiColorTextEdit/TextEditor.h"
-
-%nspace ImGuiFreeType;
-%include "imgui/misc/freetype/imgui_freetype.h"
+%include "build.h" //file containing everything
