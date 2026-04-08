@@ -121,8 +121,8 @@ jobs:
                 -I"$JNI_INCLUDE" \
                 -I"$JNI_PLATFORM" \
                 -Iinclude -Iinclude/imgui \
-                -Ifreetype/include \
-                -Iplutosvg/source \
+                -Iinclude/freetype/include \
+                -Iinclude/plutosvg/source \
                 generated/wrapper.cpp
                 dependencies/freetype-windows.a \
                 dependencies/plutosvg-windows.a \
@@ -134,8 +134,8 @@ jobs:
                 -I"$JNI_INCLUDE" \
                 -I"$JNI_PLATFORM" \
                 -Iinclude -Iinclude/imgui \
-                -Ifreetype/include \
-                -Iplutosvg/source \
+                -Iinclude/freetype/include \
+                -Iinclude/plutosvg/source \
                 generated/wrapper.cpp
                 dependencies/freetype-linux.a \
                 dependencies/plutosvg-linux.a
