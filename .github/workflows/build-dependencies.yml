@@ -25,6 +25,9 @@ jobs:
       with:
         submodules: recursive
 
+    # =========================
+    # Install dependencies
+    # =========================
     - name: Install dependencies (Linux)
       if: matrix.os == 'linux'
       run: |
@@ -48,6 +51,8 @@ jobs:
           autoconf
           automake
           libtool
+          pkg-config
+          git
 
     # =========================
     # Build plutosvg (CMake)
@@ -85,11 +90,19 @@ jobs:
         cd include/freetype
 
         if [ "${{ matrix.os }}" = "windows" ]; then
+          # Ensure MSYS2 MinGW64 environment is active
+          export PATH="/c/msys64/mingw64/bin:$PATH"
+          
+          # Generate configure script if missing
           ./autogen.sh || true
+          
+          # Configure for Windows native static build
           ./configure \
             --enable-static --disable-shared \
             --without-zlib --without-png --without-bzip2 --without-harfbuzz \
             CFLAGS="-O2 -DPLATFORM_MINGW -D_POSIX_C_SOURCE=200809L"
+
+          # Build
           mingw32-make -j
         else
           ./autogen.sh || true
@@ -115,6 +128,9 @@ jobs:
           cp include/freetype/objs/.libs/libfreetype.a build/artifacts/freetype-linux.a || true
         fi
 
+    # =========================
+    # Upload artifacts
+    # =========================
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
