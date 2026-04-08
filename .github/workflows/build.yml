@@ -55,11 +55,6 @@ jobs:
         run: |
           javac -cp "dependencies/*" -d build $(find generated -name "*.java")
 
-      # - name: Create base JAR
-      #   run: |
-      #     mkdir -p dist
-      #     jar cf dist/imgui.jar -C build .
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -69,84 +64,80 @@ jobs:
             build/*
 
   build-natives:
-      needs: generate-bindings
-      runs-on: ubuntu-latest
+    needs: generate-bindings
+    runs-on: ${{ matrix.os }}
   
-      strategy:
-        matrix:
-          os: [ubuntu, windows]
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: windows
   
-      steps:
-        - uses: actions/checkout@v4
-          with:
-            submodules: recursive
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
   
-        - uses: actions/download-artifact@v4
-          with:
-            name: base
-            path: .
+      - uses: actions/download-artifact@v4
+        with:
+          name: base
+          path: .
   
-        - name: Setup Java
-          uses: actions/setup-java@v4
-          with:
-            distribution: temurin
-            java-version: 25
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
   
-        - name: Install MinGW (Windows cross-compilation)
-          if: matrix.os == 'windows'
-          run: sudo apt-get update && sudo apt-get install -y mingw-w64
+      - name: Set JNI paths
+        shell: bash
+        run: |
+          echo "JNI_INCLUDE=$JAVA_HOME/include" >> $GITHUB_ENV
   
-        - name: Set JNI paths
-          shell: bash
-          run: |
-            echo "JNI_INCLUDE=$JAVA_HOME/include" >> $GITHUB_ENV
+          if [ "${{ matrix.platform }}" = "linux" ]; then
+            echo "JNI_PLATFORM=$JAVA_HOME/include/linux" >> $GITHUB_ENV
+          else
+            echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
+          fi
   
-            if [ "${{ matrix.os }}" = "ubuntu" ]; then
-              echo "JNI_PLATFORM=$JAVA_HOME/include/linux" >> $GITHUB_ENV
-            else
-              echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
-            fi
-          
+      - name: Compile native
+        shell: bash
+        run: |
+          mkdir -p build/native
   
-        - name: Compile native
-          shell: bash
-          run: |
-            mkdir -p build/native
-
-            CXXFLAGS="-O2 -Wall -Wextra -std=c++17"
-            
-            if [ "${{ matrix.os }}" = "windows" ]; then
-              x86_64-w64-mingw32-g++ -shared -static-libgcc -static -static-libstdc++ \
-                -o build/native/imgui.dll \
-                -I"$JNI_INCLUDE" \
-                -I"$JNI_PLATFORM" \
-                -Iinclude -Iinclude/imgui \
-                -Iinclude/freetype/include \
-                -Iinclude/plutosvg/source \
-                -Iinclude/plutosvg/plutovg/include \
-                dependencies/freetype-windows.a \
-                dependencies/plutosvg-windows.a \
-                generated/wrapper.cpp \
-                -Wl,--kill-at
-            
-            else
-              g++ -shared -fPIC -static-libgcc -static-libstdc++ \
-                -o build/native/libimgui.so \
-                -I"$JNI_INCLUDE" \
-                -I"$JNI_PLATFORM" \
-                -Iinclude -Iinclude/imgui \
-                -Iinclude/freetype/include \
-                -Iinclude/plutosvg/source \
-                -Iinclude/plutosvg/plutovg/include \
-                dependencies/freetype-linux.a \
-                dependencies/plutosvg-linux.a \
-                generated/wrapper.cpp
-            fi
-            
-        - uses: actions/upload-artifact@v4
-          with:
-            name: natives-${{ matrix.os }}
-            path: build/native
+          if [ "${{ matrix.platform }}" = "windows" ]; then
+            g++ -shared -static-libgcc -static-libstdc++ \
+              -o build/native/imgui.dll \
+              -I"$JNI_INCLUDE" \
+              -I"$JNI_PLATFORM" \
+              -Iinclude -Iinclude/imgui \
+              -Iinclude/freetype/include \
+              -Iinclude/plutosvg/source \
+              -Iinclude/plutosvg/plutovg/include \
+              dependencies/freetype-windows.a \
+              dependencies/plutosvg-windows.a \
+              generated/wrapper.cpp \
+              -Wl,--kill-at
+          else
+            g++ -shared -fPIC -static-libgcc -static-libstdc++ \
+              -o build/native/libimgui.so \
+              -I"$JNI_INCLUDE" \
+              -I"$JNI_PLATFORM" \
+              -Iinclude -Iinclude/imgui \
+              -Iinclude/freetype/include \
+              -Iinclude/plutosvg/source \
+              -Iinclude/plutosvg/plutovg/include \
+              dependencies/freetype-linux.a \
+              dependencies/plutosvg-linux.a \
+              generated/wrapper.cpp
+          fi
+  
+      - uses: actions/upload-artifact@v4
+        with:
+          name: natives-${{ matrix.os }}
+          path: build/native
           
   release:
     needs: [generate-bindings, build-natives]
