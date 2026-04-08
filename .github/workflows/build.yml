@@ -108,7 +108,7 @@ jobs:
           mkdir -p build/native
   
           if [ "${{ matrix.platform }}" = "windows" ]; then
-            g++ -shared -static-libgcc -static-libstdc++ \
+            g++ -shared -static -static-libgcc -static-libstdc++ \
               -o build/native/imgui.dll \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
