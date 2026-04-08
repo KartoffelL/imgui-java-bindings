@@ -1,9 +1,35 @@
 %module ImGui
 
 %{
-#include "imgui/imgui.h"
-#include "ImGuiColorTextEdit/TextEditor.h"
-#include "imgui/backends/imgui_impl_opengl3.h"
+  //#include "imgui/imgui.h"
+  //#include "imgui/imgui.h"
+  //#include "ImGuiColorTextEdit/TextEditor.h"
+  //#include "imgui/backends/imgui_impl_opengl3.h"
+  
+  #include "imconfig.h" //Custom configuration for builds
+  
+  // Dear ImGui files
+  #include "imgui/imgui.cpp"
+  #include "imgui/imgui_demo.cpp"
+  #include "imgui/imgui_draw.cpp"
+  #include "imgui/imgui_tables.cpp"
+  #include "imgui/imgui_widgets.cpp"
+  
+  // Dear ImGui backend
+  
+  // #include "glfw/include/GLFW/glfw3.h" //Compiling glfw would make things a lot more complicated
+  // #include "glfw/include/GLFW/glfw3native.h"
+  
+  #include "imgui/backends/imgui_impl_opengl3.cpp"
+  // #include "imgui/backends/imgui_impl_glfw.cpp"
+  
+  //ImGui Font rendering related
+  #include "imgui/misc/freetype/imgui_freetype.cpp"
+  
+  
+  //ImGuiColorTextEdit files
+  #include "ImGuiColorTextEdit/TextEditor.cpp"
+
 %}
 
 %include "enumtypeunsafe.swg"
@@ -68,8 +94,19 @@
 %ignore DebugLogV;
 %ignore appendfv;
 
+%rename(ImGuiFreeType_SetAllocatorFunctions) ImGuiFreeType::SetAllocatorFunctions;
 
+//Sadly, we have to mirror all defines of imconfig.h, since SWIG can't handle that.
+#define IMGUI_ENABLE_FREETYPE_PLUTOSVG
+#define IMGUI_ENABLE_FREETYPE
+#define IMGUI_USE_WCHAR32
+//#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS //TODO
+
+////Includes------
 
 %include "imgui/imgui.h"
 %include "imgui/backends/imgui_impl_opengl3.h"
+
 %include "ImGuiColorTextEdit/TextEditor.h"
+
+%include "imgui/misc/freetype/imgui_freetype.h"

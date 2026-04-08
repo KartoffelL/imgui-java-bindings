@@ -27,13 +27,13 @@ Everything's still work in progress, so production-usage can't be advised, but t
 ### Usage
   The Release Section contains a cross-platform jar for the supported versions. Just include it like any other jar. Artifacts are not yet published to maven.
 ### Maintaining
-This repository is meant to be rather easily maint- and forkable. to build, the generate-and-build.yml workflow is triggered which generates the Java API from the header files using bindings.i, then static binaries are build for all platforms containing
-the implementations and finally everything is bundled (and released). 
-The dependencies folder contains some compile-time dependencies of the library (manually added), The include folder contains all submodules and the build.cpp.
-The build.cpp is compiled into the native library and should include all native code. 
-Some notes:
-* *To update to a newer version of ImGui*<br>
-  update the affected submodules and adjust bindings.i (and perhaps the handwritten api)
-* *To add additional libraries (eg. ImGui extensions)*<br>
-  add a submodule to include/, reference it's header files inside bindings.i and the implementation files inside build.cpp
+This repository is meant to be rather easily maint- and forkable.
+To build, the build.yml workflow is triggered which generates the Java API from the header files using bindings.i, then static binaries are build for all platforms containing the implementations and finally everything is bundled (and released). 
+To built any dependencies (freetype and plutosvg), the build-dependencies.yml workflow is triggered (check action logs for artifact upload).
+The dependencies folder contains some compile-time dependencies of the library (manually added), The include folder contains all submodules and imconfig.h (ImGui build time configuration).
+---
+*Note:* 
+To update, add or remove any files either compiled into the native or exposed in the generated api, edit the bindings.i file.
+To change/include/exclude any non-source files from native compilation, you have to edit the workflow manually.
+(Special) all defines made eg. inside imconfig.h have to be mirrored inside bindings.i, since SWIG does not keep defines across files?
   
