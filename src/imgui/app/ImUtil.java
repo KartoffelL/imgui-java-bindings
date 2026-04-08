@@ -189,7 +189,7 @@ public class ImUtil {
         if (boolsI == bools.length)
             boolsI = 0;
         var r = bools[boolsI];
-        r.set(b); // NOTE: ImBoolean uses set(), not put()
+        r.put(b);
         return r;
     }
 
