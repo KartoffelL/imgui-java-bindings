@@ -35,4 +35,5 @@ The dependencies folder contains some compile-time dependencies of the library (
 *Note:* 
 To update, add or remove any files either compiled into the native or exposed in the generated api, edit the bindings.i file.
 To change/include/exclude any non-source files from native compilation, you have to edit the workflow manually.
+(Special) all defines made eg. inside imconfig.h have to be mirrored inside bindings.i, since SWIG does not keep defines across files?
   
