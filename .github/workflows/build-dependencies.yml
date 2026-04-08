@@ -9,27 +9,18 @@ on:
 jobs:
   build:
 
-    runs-on: ${{ matrix.runner }}
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
         os: [linux, windows]
-        include:
-          - os: linux
-            runner: ubuntu-latest
-          - os: windows
-            runner: windows-latest
 
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
 
-    # =========================
-    # Install dependencies
-    # =========================
-    - name: Install dependencies (Linux)
-      if: matrix.os == 'linux'
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
@@ -37,22 +28,6 @@ jobs:
           cmake \
           mingw-w64 \
           autoconf automake libtool
-
-    - name: Setup MSYS2 (Windows)
-      if: matrix.os == 'windows'
-      uses: msys2/setup-msys2@v2
-      with:
-        update: true
-        msystem: MINGW64
-        install: >-
-          mingw-w64-x86_64-toolchain
-          mingw-w64-x86_64-cmake
-          mingw-w64-x86_64-make
-          autoconf
-          automake
-          libtool
-          pkg-config
-          git
 
     # =========================
     # Build plutosvg (CMake)
@@ -65,21 +40,21 @@ jobs:
 
         if [ "${{ matrix.os }}" = "windows" ]; then
           cmake ../../include/plutosvg \
-            -G "MinGW Makefiles" \
-            -DCMAKE_C_COMPILER=gcc \
-            -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_SYSTEM_NAME=Windows \
+            -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
+            -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ \
             -DBUILD_SHARED_LIBS=OFF \
             -DPLUTOSVG_BUILD_STATIC=ON \
             -DPLUTOSVG_HAS_FREETYPE=ON
-          mingw32-make -j
         else
           cmake ../../include/plutosvg \
             -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
             -DBUILD_SHARED_LIBS=OFF \
             -DPLUTOSVG_BUILD_STATIC=ON \
             -DPLUTOSVG_HAS_FREETYPE=ON
-          make -j
         fi
+
+        make -j
 
     # =========================
     # Build FreeType
@@ -90,27 +65,20 @@ jobs:
         cd include/freetype
 
         if [ "${{ matrix.os }}" = "windows" ]; then
-          # Ensure MSYS2 MinGW64 environment is active
-          export PATH="/c/msys64/mingw64/bin:$PATH"
-          
-          # Generate configure script if missing
           ./autogen.sh || true
-          
-          # Configure for Windows native static build
           ./configure \
-            --enable-static --disable-shared \
-            --without-zlib --without-png --without-bzip2 --without-harfbuzz \
-            CFLAGS="-O2 -DPLATFORM_MINGW -D_POSIX_C_SOURCE=200809L"
-
-          # Build
-          mingw32-make -j
+          --host=x86_64-w64-mingw32 \
+          --enable-static --disable-shared \
+          --without-zlib --without-png --without-bzip2 --without-harfbuzz \
+          CFLAGS="-O2 -DPLATFORM_MINGW -D_POSIX_C_SOURCE=200809L"
         else
           ./autogen.sh || true
           ./configure \
             CFLAGS="-fPIC" --enable-static --disable-shared \
             --without-png --without-bzip2 --without-harfbuzz
-          make -j
         fi
+
+        make -j
 
     # =========================
     # Collect artifacts
@@ -128,12 +96,11 @@ jobs:
           cp include/freetype/objs/.libs/libfreetype.a build/artifacts/freetype-linux.a || true
         fi
 
-    # =========================
-    # Upload artifacts
-    # =========================
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: dependency-build-${{ matrix.os }}-${{ github.run_number }}
         path: |
           build/*
+
