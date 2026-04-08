@@ -124,9 +124,9 @@ jobs:
                 -Iinclude/freetype/include \
                 -Iinclude/plutosvg/source \
                 -Iinclude/plutosvg/plutovg/include \
-                generated/wrapper.cpp
                 dependencies/freetype-windows.a \
                 dependencies/plutosvg-windows.a \
+                generated/wrapper.cpp \
                 -Wl,--kill-at
             
             else
@@ -138,9 +138,9 @@ jobs:
                 -Iinclude/freetype/include \
                 -Iinclude/plutosvg/source \
                 -Iinclude/plutosvg/plutovg/include \
-                generated/wrapper.cpp
                 dependencies/freetype-linux.a \
-                dependencies/plutosvg-linux.a
+                dependencies/plutosvg-linux.a \
+                generated/wrapper.cpp
             fi
             
         - uses: actions/upload-artifact@v4
