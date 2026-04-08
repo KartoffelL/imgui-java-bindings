@@ -96,9 +96,13 @@
 
 %rename(ImGuiFreeType_SetAllocatorFunctions) ImGuiFreeType::SetAllocatorFunctions;
 
-////Includes------
+//Sadly, we have to mirror all defines of imconfig.h, since SWIG can't handle that.
+#define IMGUI_ENABLE_FREETYPE_PLUTOSVG
+#define IMGUI_ENABLE_FREETYPE
+#define IMGUI_USE_WCHAR32
+#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 
-%include "imconfig.h" //Custom configuration for builds
+////Includes------
 
 %include "imgui/imgui.h"
 %include "imgui/backends/imgui_impl_opengl3.h"
