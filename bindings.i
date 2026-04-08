@@ -24,7 +24,7 @@
 // #include "imgui/backends/imgui_impl_glfw.cpp"
 
 //ImGui Font rendering related
-#define PLUTOSVG_BUILD
+#define PLUTOSVG_BUILD_STATIC
 #include "imgui/misc/freetype/imgui_freetype.cpp"
 
 
