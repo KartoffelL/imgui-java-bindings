@@ -138,7 +138,7 @@ jobs:
                 -Iplutosvg/source \
                 generated/wrapper.cpp
                 dependencies/freetype-linux.a \
-                dependencies/plutosvg-linux.a \
+                dependencies/plutosvg-linux.a
             fi
             
         - uses: actions/upload-artifact@v4
