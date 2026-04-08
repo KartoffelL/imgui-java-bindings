@@ -22,7 +22,7 @@ public class ImUtil {
         ImGui.CreateContext();
     }
 
-    private static ImVec2[] vc2s = new ImVec2[16];
+    private final static ImVec2[] vc2s = new ImVec2[16];
     private static int vc2sI = 0;
     static {
         for(int i = 0; i < vc2s.length; i++)
@@ -46,18 +46,21 @@ public class ImUtil {
         return r;
     }
 
-    private static ImVec4[] vc4s = new ImVec4[16];
+    private final static ImVec4[] vc4s = new ImVec4[16];
     private static int vc4sI = 0;
     static {
         for(int i = 0; i < vc4s.length; i++)
             vc4s[i] = new ImVec4();
     }
+    
 
     /**
      * Returns a cached ImVec4 that "is valid for the current invocation". This is meant to be invoked in functions like
      * Begin to avoid generating too many objects.
      * @param x the x
      * @param y the y
+     * @param z the z
+     * @param w the w
      * @return
      */
     public static ImVec4 ImVec4(float x, float y, float z, float w) {
@@ -69,6 +72,124 @@ public class ImUtil {
         r.setY(y);
         r.setZ(z);
         r.setW(w);
+        return r;
+    }
+
+    private final static ImInt[] ints = new ImInt[16];
+    private static int intsI = 0;
+    static {
+        for(int i = 0; i < ints.length; i++)
+            ints[i] = new ImInt();
+    }
+    
+
+    /**
+     * Returns a cached ImInt that "is valid for the current invocation". This is meant to be invoked in functions like
+     * Begin to avoid generating too many objects.
+     * @param i the i
+     * @return
+     */
+    public static ImInt ImInt(int i) {
+        intsI++;
+        if(intsI == ints.length)
+            intsI = 0;
+        var r = ints[intsI];
+        r.put(i);
+        return r;
+    }
+
+    // ---------- ImFloat ----------
+    private final static ImFloat[] floats = new ImFloat[16];
+    private static int floatsI = 0;
+    static {
+        for (int i = 0; i < floats.length; i++)
+            floats[i] = new ImFloat();
+    }
+    
+    /**
+     * Returns a cached ImFloat that "is valid for the current invocation". This is meant to be invoked in functions like
+     * Begin to avoid generating too many objects.
+     * @param f the f
+     * @return
+     */
+    public static ImFloat ImFloat(float f) {
+        floatsI++;
+        if (floatsI == floats.length)
+            floatsI = 0;
+        var r = floats[floatsI];
+        r.put(f);
+        return r;
+    }
+    
+    
+    // ---------- ImDouble ----------
+    private final static ImDouble[] doubles = new ImDouble[16];
+    private static int doublesI = 0;
+    static {
+        for (int i = 0; i < doubles.length; i++)
+            doubles[i] = new ImDouble();
+    }
+    
+    /**
+     * Returns a cached ImDouble that "is valid for the current invocation". This is meant to be invoked in functions like
+     * Begin to avoid generating too many objects.
+     * @param d the d
+     * @return
+     */
+    public static ImDouble ImDouble(double d) {
+        doublesI++;
+        if (doublesI == doubles.length)
+            doublesI = 0;
+        var r = doubles[doublesI];
+        r.put(d);
+        return r;
+    }
+    
+    
+    // ---------- ImByte ----------
+    private final static ImByte[] bytes = new ImByte[16];
+    private static int bytesI = 0;
+    static {
+        for (int i = 0; i < bytes.length; i++)
+            bytes[i] = new ImByte();
+    }
+    
+    /**
+     * Returns a cached ImByte that "is valid for the current invocation". This is meant to be invoked in functions like
+     * Begin to avoid generating too many objects.
+     * @param b the b
+     * @return
+     */
+    public static ImByte ImByte(byte b) {
+        bytesI++;
+        if (bytesI == bytes.length)
+            bytesI = 0;
+        var r = bytes[bytesI];
+        r.put(b);
+        return r;
+    }
+    
+    
+    // ---------- ImBoolean ----------
+    private final static ImBool[] bools = new ImBool[16];
+    private static int boolsI = 0;
+    static {
+        for (int i = 0; i < bools.length; i++)
+            bools[i] = new ImBool();
+    }
+    
+    /**
+     * Returns a cached ImBool that "is valid for the current invocation". This is meant to be invoked in functions like
+     * Begin to avoid generating too many objects.
+     * @param b the b
+     * @return
+     */
+    public static ImBool ImBool(boolean b) {
+        boolsI++;
+        if (boolsI == bools.length)
+            boolsI = 0;
+        var r = bools[boolsI];
+        r.set(b); // NOTE: ImBoolean uses set(), not put()
         return r;
     }
 
