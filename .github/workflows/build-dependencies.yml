@@ -45,7 +45,8 @@ jobs:
             -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ \
             -DBUILD_SHARED_LIBS=OFF
         else
-          cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON ../../include/plutosvg \
+          cmake ../../include/plutosvg \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
             -DBUILD_SHARED_LIBS=OFF
         fi
 
@@ -68,7 +69,7 @@ jobs:
         else
           ./autogen.sh || true
           ./configure \
-            --enable-static --disable-shared \
+            CFLAGS="-fPIC" --enable-static --disable-shared \
             --without-png --without-bzip2 --without-harfbuzz
         fi
 
