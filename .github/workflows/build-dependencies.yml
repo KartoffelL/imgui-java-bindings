@@ -124,7 +124,8 @@ jobs:
 
         if [ "${{ matrix.os }}" = "windows" ]; then
           cp build/plutosvg/*.a build/artifacts/plutosvg-windows.a || true
-          cp include/freetype/objs/.libs/libfreetype.a build/artifacts/freetype-windows.a || true
+          cp include/freetype/build/libfreetype.a build/artifacts/freetype-windows.a || \
+          cp include/freetype/build/Release/libfreetype.a build/artifacts/freetype-windows.a || true
         else
           cp build/plutosvg/*.a build/artifacts/plutosvg-linux.a || true
           cp include/freetype/objs/.libs/libfreetype.a build/artifacts/freetype-linux.a || true
