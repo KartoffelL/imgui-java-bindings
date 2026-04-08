@@ -98,7 +98,7 @@
 
 %rename(ImGuiFreeType_SetAllocatorFunctions) ImGuiFreeType::SetAllocatorFunctions;
 
-
+%include "imconfig.h" //Custom configuration for builds
 %include "imgui/imgui.h"
 %include "imgui/backends/imgui_impl_opengl3.h"
 
