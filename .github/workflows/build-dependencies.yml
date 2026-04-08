@@ -63,9 +63,10 @@ jobs:
         if [ "${{ matrix.os }}" = "windows" ]; then
           ./autogen.sh || true
           ./configure \
-            --host=x86_64-w64-mingw32 \
-            --enable-static --disable-shared \
-            --without-zlib --without-png --without-bzip2 --without-harfbuzz
+          --host=x86_64-w64-mingw32 \
+          --enable-static --disable-shared \
+          --without-zlib --without-png --without-bzip2 --without-harfbuzz \
+          CFLAGS="-O2 -DPLATFORM_MINGW -D_POSIX_C_SOURCE=200809L"
         else
           ./autogen.sh || true
           ./configure \
