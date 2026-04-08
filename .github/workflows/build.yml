@@ -1,4 +1,4 @@
-name: Build and Release (SWIG JNI)
+name: Build
 
 permissions:
   contents: write
@@ -21,7 +21,7 @@ jobs:
         with:
           submodules: true
 
-      - name: Generate version
+      - name: Version
         id: version
         run: echo "version=0.1.${GITHUB_RUN_NUMBER}" >> $GITHUB_OUTPUT
 
@@ -34,7 +34,7 @@ jobs:
           distribution: temurin
           java-version: 25
 
-      - name: Generate bindings
+      - name: Generate SWIG bindings
         run: |
           mkdir -p generated/java/imguijb
 
@@ -92,7 +92,7 @@ jobs:
             distribution: temurin
             java-version: 17
   
-        - name: Install MinGW (for Windows cross-compilation)
+        - name: Install MinGW (Windows cross-compilation)
           if: matrix.os == 'windows'
           run: sudo apt-get update && sudo apt-get install -y mingw-w64
   
@@ -108,7 +108,7 @@ jobs:
             fi
           
   
-        - name: Compile native fully self-contained (fixed)
+        - name: Compile native
           shell: bash
           run: |
             mkdir -p build/native
