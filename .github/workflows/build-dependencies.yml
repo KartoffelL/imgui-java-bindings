@@ -9,27 +9,18 @@ on:
 jobs:
   build:
 
-    runs-on: ${{ matrix.runner }}
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
         os: [linux, windows]
-        include:
-          - os: linux
-            runner: ubuntu-latest
-          - os: windows
-            runner: windows-latest
 
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
 
-    # =========================
-    # Install dependencies
-    # =========================
-    - name: Install dependencies (Linux)
-      if: matrix.os == 'linux'
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
@@ -38,87 +29,27 @@ jobs:
           mingw-w64 \
           autoconf automake libtool
 
-    - name: Setup MSYS2 (Windows)
-      if: matrix.os == 'windows'
-      uses: msys2/setup-msys2@v2
-      with:
-        update: true
-        msystem: MINGW64
-        install: >-
-          mingw-w64-x86_64-toolchain
-          mingw-w64-x86_64-cmake
-          mingw-w64-x86_64-make
-          autoconf
-          automake
-          libtool
-          pkg-config
-          git
-
     # =========================
-    # Build plutosvg + plutovg (CMake)
+    # Build plutosvg (CMake)
     # =========================
     - name: Build plutosvg
       shell: bash
       run: |
-        # Create build directories
-        mkdir -p build/plutovg
         mkdir -p build/plutosvg
-        
-    
+        cd build/plutosvg
+
         if [ "${{ matrix.os }}" = "windows" ]; then
-          # Build PlutoVG first
-          cd build/plutovg
-          cmake ../../include/plutosvg/plutovg \
-            -G "MinGW Makefiles" \
-            -DCMAKE_C_COMPILER=gcc \
-            -DCMAKE_CXX_COMPILER=g++ \
+          cmake ../../include/plutosvg \
+            -DCMAKE_SYSTEM_NAME=Windows \
+            -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
+            -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ \
             -DBUILD_SHARED_LIBS=OFF
-          mingw32-make -j
-          # PlutoVG static library will be here:
-          # build/plutovg/libplutovg.a
-          cd ..
-          cd ..
-    
-          # Build PlutoSVG
-          cd build/plutosvg
-          cmake ../../include/plutosvg \
-            -G "MinGW Makefiles" \
-            -DCMAKE_C_COMPILER=gcc \
-            -DCMAKE_CXX_COMPILER=g++ \
-            -DBUILD_SHARED_LIBS=OFF \
-            -DPLUTOSVG_BUILD_STATIC=ON \
-            -DPLUTOSVG_HAS_FREETYPE=ON
-          mingw32-make -j
-          # PlutoSVG static library will be here:
-          # build/plutosvg/libplutosvg.a
-          cd ..
-          cd ..
         else
-          # Linux / macOS
-          # Build PlutoVG
-          cd build/plutovg
-          cmake ../../include/plutosvg/plutovg \
-            -DBUILD_SHARED_LIBS=OFF \
-            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-          make -j
-          # PlutoVG static library will be here:
-          # build/plutovg/libplutovg.a
-          cd ..
-          cd ..
-    
-          # Build PlutoSVG
-          cd build/plutosvg
           cmake ../../include/plutosvg \
-            -DBUILD_SHARED_LIBS=OFF \
-            -DPLUTOSVG_BUILD_STATIC=ON \
-            -DPLUTOSVG_HAS_FREETYPE=ON \
-            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-          make -j
-          # PlutoSVG static library will be here:
-          # build/plutosvg/libplutosvg.a
-          cd ..
-          cd ..
+            -DBUILD_SHARED_LIBS=OFF
         fi
+
+        make -j
 
     # =========================
     # Build FreeType
@@ -127,31 +58,21 @@ jobs:
       shell: bash
       run: |
         cd include/freetype
-    
+
         if [ "${{ matrix.os }}" = "windows" ]; then
-          # Ensure MSYS2 MinGW64 environment is active
-          export PATH="/c/msys64/mingw64/bin:$PATH"
-          
-          mkdir -p build
-          cd build
-    
-          cmake .. \
-            -G "MinGW Makefiles" \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_SHARED_LIBS=OFF \
-            -DFT_WITH_ZLIB=OFF \
-            -DFT_WITH_PNG=OFF \
-            -DFT_WITH_BZIP2=OFF \
-            -DFT_WITH_HARFBUZZ=OFF
-    
-          mingw32-make -j
+          ./autogen.sh || true
+          ./configure \
+            --host=x86_64-w64-mingw32 \
+            --enable-static --disable-shared \
+            --without-png --without-bzip2 --without-harfbuzz
         else
           ./autogen.sh || true
           ./configure \
-            CFLAGS="-fPIC" --enable-static --disable-shared \
+            --enable-static --disable-shared \
             --without-png --without-bzip2 --without-harfbuzz
-          make -j
         fi
+
+        make -j
 
     # =========================
     # Collect artifacts
@@ -160,30 +81,25 @@ jobs:
       shell: bash
       run: |
         mkdir -p build/artifacts
-    
+
         if [ "${{ matrix.os }}" = "windows" ]; then
-          # PlutoSVG
           cp build/plutosvg/*.a build/artifacts/plutosvg-windows.a || true
-          # PlutoVG
-          cp build/plutovg/*.a build/artifacts/plutovg-windows.a || true
-          # FreeType
-          cp include/freetype/build/libfreetype.a build/artifacts/freetype-windows.a || \
-          cp include/freetype/build/Release/libfreetype.a build/artifacts/freetype-windows.a || true
+          cp include/freetype/.libs/libfreetype.a build/artifacts/freetype-windows.a || true
         else
-          # PlutoSVG
           cp build/plutosvg/*.a build/artifacts/plutosvg-linux.a || true
-          # PlutoVG
-          cp build/plutovg/*.a build/artifacts/plutovg-linux.a || true
-          # FreeType
-          cp include/freetype/objs/.libs/libfreetype.a build/artifacts/freetype-linux.a || true
+          cp include/freetype/.libs/libfreetype.a build/artifacts/freetype-linux.a || true
         fi
 
     # =========================
-    # Upload artifacts
+    # Commit artifacts
     # =========================
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: dependency-build-${{ matrix.os }}-${{ github.run_number }}
-        path: |
-          build/*
+    - name: Commit artifacts
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+
+        git add build/artifacts
+
+        git commit -m "Update native libs (${{ matrix.os }})" || echo "No changes"
+
+        git push

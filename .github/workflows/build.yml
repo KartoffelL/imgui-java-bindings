@@ -1,4 +1,4 @@
-name: Build
+name: Build and Release (SWIG JNI)
 
 permissions:
   contents: write
@@ -21,7 +21,7 @@ jobs:
         with:
           submodules: true
 
-      - name: Version
+      - name: Generate version
         id: version
         run: echo "version=0.1.${GITHUB_RUN_NUMBER}" >> $GITHUB_OUTPUT
 
@@ -34,7 +34,7 @@ jobs:
           distribution: temurin
           java-version: 25
 
-      - name: Generate SWIG bindings
+      - name: Generate bindings
         run: |
           mkdir -p generated/java/imguijb
 
@@ -55,6 +55,11 @@ jobs:
         run: |
           javac -cp "dependencies/*" -d build $(find generated -name "*.java")
 
+      # - name: Create base JAR
+      #   run: |
+      #     mkdir -p dist
+      #     jar cf dist/imgui.jar -C build .
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -62,86 +67,73 @@ jobs:
           path: |
             generated/*
             build/*
+#            dist/imgui.jar
 
   build-natives:
     needs: generate-bindings
     runs-on: ${{ matrix.os }}
-  
+
     strategy:
       matrix:
-        include:
-          - os: ubuntu-latest
-            platform: linux
-          - os: windows-latest
-            platform: windows
-  
+        os: [ubuntu-latest, windows-latest]
+
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: recursive
-  
+          submodules: true
+
       - uses: actions/download-artifact@v4
         with:
           name: base
           path: .
-  
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 25
-  
+          java-version: 17
+
       - name: Set JNI paths
         shell: bash
         run: |
           echo "JNI_INCLUDE=$JAVA_HOME/include" >> $GITHUB_ENV
-  
-          if [ "${{ matrix.platform }}" = "linux" ]; then
+
+          if [ "$RUNNER_OS" = "Linux" ]; then
             echo "JNI_PLATFORM=$JAVA_HOME/include/linux" >> $GITHUB_ENV
           else
             echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
           fi
-  
-      - name: Compile native
+
+      - name: Compile native fully self-contained (fixed)
         shell: bash
         run: |
           mkdir -p build/native
-  
-          if [ "${{ matrix.platform }}" = "windows" ]; then
-            g++ -shared -static -static-libgcc -static-libstdc++ \
+      
+          CXXFLAGS="-O2 -Wall -Wextra -std=c++17"
+      
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            g++ -shared -static-libgcc -static -static-libstdc++ \
               -o build/native/imgui.dll \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
               -Iinclude -Iinclude/imgui \
-              -Iinclude/freetype/include \
-              -Iinclude/plutosvg/source \
-              -Iinclude/plutosvg/plutovg/include \
-              -DPLUTOSVG_BUILD_STATIC \
-              generated/wrapper.cpp \
-              dependencies/freetype-windows.a \
-              dependencies/plutosvg-windows.a \
-              dependencies/plutovg-windows.a \
+              generated/wrapper.cpp \                 #include/build.cpp \
               -Wl,--kill-at
+      
           else
             g++ -shared -fPIC -static-libgcc -static-libstdc++ \
               -o build/native/libimgui.so \
               -I"$JNI_INCLUDE" \
               -I"$JNI_PLATFORM" \
               -Iinclude -Iinclude/imgui \
-              -Iinclude/freetype/include \
-              -Iinclude/plutosvg/source \
-              -Iinclude/plutosvg/plutovg/include \
-              generated/wrapper.cpp \
-              dependencies/freetype-linux.a \
-              dependencies/plutosvg-linux.a \
-              dependencies/plutovg-linux.a
+              generated/wrapper.cpp  #include/build.cpp
           fi
-  
+          
       - uses: actions/upload-artifact@v4
         with:
           name: natives-${{ matrix.os }}
           path: build/native
-          
+
   release:
     needs: [generate-bindings, build-natives]
     runs-on: ubuntu-latest

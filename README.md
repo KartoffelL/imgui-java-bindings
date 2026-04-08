@@ -4,7 +4,7 @@
 
 [SWIG](https://github.com/swig/swig) generated [Dear ImGui](https://github.com/ocornut/imgui) bindings for Java.
 
-[![Build and Release (SWIG JNI)](https://github.com/KartoffelL/imgui-java-bindings/actions/workflows/generate-and-build.yml/badge.svg)](https://github.com/KartoffelL/imgui-java-bindings/actions/workflows/generate-and-build.yml)
+[![Build and Release (SWIG JNI)](https://github.com/KartoffelL/imgui-java-bindings/actions/workflows/build.yml/badge.svg)](https://github.com/KartoffelL/imgui-java-bindings/actions/workflows/generate-and-build.yml)
 ![License](https://img.shields.io/github/license/KartoffelL/imgui-java-bindings)
 ![Release](https://img.shields.io/github/v/release/KartoffelL/imgui-java-bindings)
 
