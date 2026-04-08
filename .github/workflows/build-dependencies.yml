@@ -55,17 +55,17 @@ jobs:
           git
 
     # =========================
-    # Build plutosvg (CMake + include plutovg)
+    # Build plutosvg + plutovg (CMake)
     # =========================
     - name: Build plutosvg
       shell: bash
       run: |
+        # Create build directories
+        mkdir -p build/plutovg
         mkdir -p build/plutosvg
-        cd build/plutosvg
     
         if [ "${{ matrix.os }}" = "windows" ]; then
           # Build PlutoVG first
-          mkdir -p build/plutovg
           cd build/plutovg
           cmake ../../include/plutosvg/plutovg \
             -G "MinGW Makefiles" \
@@ -73,9 +73,12 @@ jobs:
             -DCMAKE_CXX_COMPILER=g++ \
             -DBUILD_SHARED_LIBS=OFF
           mingw32-make -j
+          # PlutoVG static library will be here:
+          # build/plutovg/libplutovg.a
           cd ..
     
           # Build PlutoSVG
+          cd build/plutosvg
           cmake ../../include/plutosvg \
             -G "MinGW Makefiles" \
             -DCMAKE_C_COMPILER=gcc \
@@ -84,36 +87,32 @@ jobs:
             -DPLUTOSVG_BUILD_STATIC=ON \
             -DPLUTOSVG_HAS_FREETYPE=ON
           mingw32-make -j
-    
-          # Merge PlutoVG into PlutoSVG static library
-          ar -M <<EOF
-          CREATE plutosvg-windows.a
-          ADDLIB plutosvg-build/src/plutosvg.a
-          ADDLIB build/plutovg/libplutovg.a
-          SAVE
-          END
-          EOF
-    
+          # PlutoSVG static library will be here:
+          # build/plutosvg/libplutosvg.a
+          cd ..
         else
           # Linux / macOS
           # Build PlutoVG
-          mkdir -p build/plutovg
           cd build/plutovg
           cmake ../../include/plutosvg/plutovg \
-            -DBUILD_SHARED_LIBS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+            -DBUILD_SHARED_LIBS=OFF \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
           make -j
+          # PlutoVG static library will be here:
+          # build/plutovg/libplutovg.a
           cd ..
     
           # Build PlutoSVG
+          cd build/plutosvg
           cmake ../../include/plutosvg \
             -DBUILD_SHARED_LIBS=OFF \
             -DPLUTOSVG_BUILD_STATIC=ON \
             -DPLUTOSVG_HAS_FREETYPE=ON \
             -DCMAKE_POSITION_INDEPENDENT_CODE=ON
           make -j
-    
-          # Merge PlutoVG into PlutoSVG static library
-          ar -q build/plutosvg-windows.a build/plutovg/libplutovg.a
+          # PlutoSVG static library will be here:
+          # build/plutosvg/libplutosvg.a
+          cd ..
         fi
 
     # =========================
@@ -156,13 +155,21 @@ jobs:
       shell: bash
       run: |
         mkdir -p build/artifacts
-
+    
         if [ "${{ matrix.os }}" = "windows" ]; then
+          # PlutoSVG
           cp build/plutosvg/*.a build/artifacts/plutosvg-windows.a || true
+          # PlutoVG
+          cp build/plutovg/*.a build/artifacts/plutovg-windows.a || true
+          # FreeType
           cp include/freetype/build/libfreetype.a build/artifacts/freetype-windows.a || \
           cp include/freetype/build/Release/libfreetype.a build/artifacts/freetype-windows.a || true
         else
+          # PlutoSVG
           cp build/plutosvg/*.a build/artifacts/plutosvg-linux.a || true
+          # PlutoVG
+          cp build/plutovg/*.a build/artifacts/plutovg-linux.a || true
+          # FreeType
           cp include/freetype/objs/.libs/libfreetype.a build/artifacts/freetype-linux.a || true
         fi
 
