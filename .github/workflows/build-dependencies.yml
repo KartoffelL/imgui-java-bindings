@@ -26,8 +26,8 @@ jobs:
         sudo apt-get install -y \
           build-essential \
           cmake \
-          autoconf automake libtool \
-          mingw-w64-ucrt-x86-64-dev
+          mingw-w64 \
+          autoconf automake libtool
 
     # =========================
     # Build plutosvg (CMake)
@@ -41,8 +41,8 @@ jobs:
         if [ "${{ matrix.os }}" = "windows" ]; then
           cmake ../../include/plutosvg \
             -DCMAKE_SYSTEM_NAME=Windows \
-            -DCMAKE_C_COMPILER=x86_64-w64-mingw32-ucrt-gcc \
-            -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-ucrt-g++ \
+            -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
+            -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ \
             -DBUILD_SHARED_LIBS=OFF \
             -DPLUTOSVG_BUILD_STATIC=ON \
             -DPLUTOSVG_HAS_FREETYPE=ON
@@ -67,7 +67,7 @@ jobs:
         if [ "${{ matrix.os }}" = "windows" ]; then
           ./autogen.sh || true
           ./configure \
-          --host=x86_64-w64-mingw32-ucrt \
+          --host=x86_64-w64-mingw32 \
           --enable-static --disable-shared \
           --without-zlib --without-png --without-bzip2 --without-harfbuzz \
           CFLAGS="-O2 -DPLATFORM_MINGW -D_POSIX_C_SOURCE=200809L"
