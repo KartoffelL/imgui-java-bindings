@@ -55,15 +55,27 @@ jobs:
           git
 
     # =========================
-    # Build plutosvg (CMake)
+    # Build plutosvg (CMake + include plutovg)
     # =========================
     - name: Build plutosvg
       shell: bash
       run: |
         mkdir -p build/plutosvg
         cd build/plutosvg
-
+    
         if [ "${{ matrix.os }}" = "windows" ]; then
+          # Build PlutoVG first
+          mkdir -p build/plutovg
+          cd build/plutovg
+          cmake ../../include/plutosvg/plutovg \
+            -G "MinGW Makefiles" \
+            -DCMAKE_C_COMPILER=gcc \
+            -DCMAKE_CXX_COMPILER=g++ \
+            -DBUILD_SHARED_LIBS=OFF
+          mingw32-make -j
+          cd ..
+    
+          # Build PlutoSVG
           cmake ../../include/plutosvg \
             -G "MinGW Makefiles" \
             -DCMAKE_C_COMPILER=gcc \
@@ -72,13 +84,36 @@ jobs:
             -DPLUTOSVG_BUILD_STATIC=ON \
             -DPLUTOSVG_HAS_FREETYPE=ON
           mingw32-make -j
+    
+          # Merge PlutoVG into PlutoSVG static library
+          ar -M <<EOF
+          CREATE plutosvg-windows.a
+          ADDLIB plutosvg-build/src/plutosvg.a
+          ADDLIB build/plutovg/libplutovg.a
+          SAVE
+          END
+          EOF
+    
         else
+          # Linux / macOS
+          # Build PlutoVG
+          mkdir -p build/plutovg
+          cd build/plutovg
+          cmake ../../include/plutosvg/plutovg \
+            -DBUILD_SHARED_LIBS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+          make -j
+          cd ..
+    
+          # Build PlutoSVG
           cmake ../../include/plutosvg \
-            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
             -DBUILD_SHARED_LIBS=OFF \
             -DPLUTOSVG_BUILD_STATIC=ON \
-            -DPLUTOSVG_HAS_FREETYPE=ON
+            -DPLUTOSVG_HAS_FREETYPE=ON \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
           make -j
+    
+          # Merge PlutoVG into PlutoSVG static library
+          ar -q build/plutosvg-windows.a build/plutovg/libplutovg.a
         fi
 
     # =========================
