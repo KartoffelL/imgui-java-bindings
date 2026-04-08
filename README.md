@@ -26,11 +26,12 @@ Everything's still work in progress, so production-usage can't be advised, but t
 * This Repo only compiles for windows x64 and linux x64
 ### Usage
   The Release Section contains a cross-platform jar for the supported versions. Just include it like any other jar. Artifacts are not yet published to maven.
-### Maintaining
+### Maintaining 
 This repository is meant to be rather easily maint- and forkable.
 To build, the build.yml workflow is triggered which generates the Java API from the header files using bindings.i, then static binaries are build for all platforms containing the implementations and finally everything is bundled (and released). 
 To built any dependencies (freetype and plutosvg), the build-dependencies.yml workflow is triggered (check action logs for artifact upload).
 The dependencies folder contains some compile-time dependencies of the library (manually added), The include folder contains all submodules and imconfig.h (ImGui build time configuration).
+
 ---
 *Note:* 
 To update, add or remove any files either compiled into the native or exposed in the generated api, edit the bindings.i file.
