@@ -116,6 +116,7 @@ jobs:
               -Iinclude/freetype/include \
               -Iinclude/plutosvg/source \
               -Iinclude/plutosvg/plutovg/include \
+              -DPLUTOSVG_BUILD_STATIC \
               generated/wrapper.cpp \
               dependencies/freetype-windows.a \
               dependencies/plutosvg-windows.a \
