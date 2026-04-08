@@ -123,6 +123,7 @@ jobs:
                 -Iinclude -Iinclude/imgui \
                 -Iinclude/freetype/include \
                 -Iinclude/plutosvg/source \
+                -Iinclude/plutosvg/plutovg/include \
                 generated/wrapper.cpp
                 dependencies/freetype-windows.a \
                 dependencies/plutosvg-windows.a \
@@ -136,6 +137,7 @@ jobs:
                 -Iinclude -Iinclude/imgui \
                 -Iinclude/freetype/include \
                 -Iinclude/plutosvg/source \
+                -Iinclude/plutosvg/plutovg/include \
                 generated/wrapper.cpp
                 dependencies/freetype-linux.a \
                 dependencies/plutosvg-linux.a
