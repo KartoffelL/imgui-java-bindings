@@ -107,19 +107,6 @@ jobs:
               echo "JNI_PLATFORM=$JAVA_HOME/include/win32" >> $GITHUB_ENV
             fi
           
-        - name: Build plutosvg
-          shell: bash
-          run: |
-            git clone --depth=1 https://github.com/sammycage/plutosvg.git plutosvg
-            cd plutosvg
-  
-            if [ "${{ matrix.os }}" = "windows" ]; then
-              x86_64-w64-mingw32-gcc -c source/*.c
-              ar rcs libplutosvg.a *.o
-            else
-              gcc -c source/*.c
-              ar rcs libplutosvg.a *.o
-            fi
   
         - name: Compile native fully self-contained (fixed)
           shell: bash
