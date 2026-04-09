@@ -96,7 +96,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include "TextEditor.h"
+//#include "TextEditor.h" //Is already included above
 %}
 
 %inline %{
