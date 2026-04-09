@@ -37,7 +37,7 @@
 %include "std_vector.i"
 %include "std_string_view.i"
 %include "std_string.i"
-%include "director.swg"
+//%include "director.swg"
 %include "various.i"
 
 %javaconst(1);
