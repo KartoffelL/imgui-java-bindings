@@ -606,7 +606,7 @@ public class ImGuiImplGlfw {
         final ImGuiIO io = ImGui.GetIO();
 
         io.setBackendPlatformName("imgui-java_impl_glfw");
-        io.setBackendFlags(io.getBackendFlags()|ImGuiBackendFlags_.ImGuiBackendFlags_HasMouseCursors | ImGuiBackendFlags_.ImGuiBackendFlags_HasSetMousePos/* | ImGuiBackendFlags_.PlatformHasViewports*/); //Viewport flags are not present anymore
+        io.setBackendFlags(io.getBackendFlags()|ImGuiBackendFlags_.ImGuiBackendFlags_HasMouseCursors | ImGuiBackendFlags_.ImGuiBackendFlags_HasSetMousePos | ImGuiBackendFlags_.ImGuiBackendFlags_PlatformHasViewports);
         if (glfwHasMousePassthrough || (glfwHasWindowHovered && IS_WINDOWS)) {
             io.setBackendFlags(io.getBackendFlags()|ImGuiBackendFlags_.ImGuiBackendFlags_HasMouseHoveredViewport);
         }
