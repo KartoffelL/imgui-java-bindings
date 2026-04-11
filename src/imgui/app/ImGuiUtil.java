@@ -636,16 +636,16 @@ public class ImGuiUtil {
     }
 
     public static class SWIGTYPE_p_f_p_ImGuiViewport_ImVec2__voidImpl extends SWIGTYPE_p_f_p_ImGuiViewport_ImVec2__void implements AutoCloseable{
-        @FunctionalInterface public interface call{void call(MemorySegment a,MemorySegment b);}
+        @FunctionalInterface public interface call{void call(MemorySegment a, MemorySegment b);}
         private final Arena arena; private final MemorySegment segment;
-        public SWIGTYPE_p_f_p_ImGuiViewport_ImVec2__voidImpl(call c,Arena ar){super(Linker.nativeLinker().upcallStub(a(()->MethodHandles.lookup().findVirtual(call.class,"call",MethodType.methodType(void.class,MemorySegment.class,MemorySegment.class))).bindTo(c),FunctionDescriptor.ofVoid(ValueLayout.ADDRESS,ValueLayout.ADDRESS),ar).address(),false);segment=null;arena=ar;}
+        public SWIGTYPE_p_f_p_ImGuiViewport_ImVec2__voidImpl(call c,Arena ar){super(Linker.nativeLinker().upcallStub(a(()->MethodHandles.lookup().findVirtual(call.class,"call",MethodType.methodType(void.class,MemorySegment.class, MemorySegment.class))).bindTo(c),FunctionDescriptor.ofVoid(ValueLayout.ADDRESS,ImVec2_),ar).address(),false);segment=null;arena=ar;}
         public Arena getArena(){return arena;} public MemorySegment getSegment(){return segment;} public void close(){arena.close();}
     }
 
     public static class SWIGTYPE_p_f_p_ImGuiViewport__ImVec2Impl extends SWIGTYPE_p_f_p_ImGuiViewport__ImVec2 implements AutoCloseable{
         @FunctionalInterface public interface call{MemorySegment call(MemorySegment a);}
         private final Arena arena; private final MemorySegment segment;
-        public SWIGTYPE_p_f_p_ImGuiViewport__ImVec2Impl(call c,Arena ar){super(Linker.nativeLinker().upcallStub(a(()->MethodHandles.lookup().findVirtual(call.class,"call",MethodType.methodType(MemorySegment.class,MemorySegment.class))).bindTo(c),FunctionDescriptor.of(ValueLayout.ADDRESS,ValueLayout.ADDRESS),ar).address(),false);segment=null;arena=ar;}
+        public SWIGTYPE_p_f_p_ImGuiViewport__ImVec2Impl(call c,Arena ar){super(Linker.nativeLinker().upcallStub(a(()->MethodHandles.lookup().findVirtual(call.class,"call",MethodType.methodType(MemorySegment.class,MemorySegment.class))).bindTo(c),FunctionDescriptor.of(ImVec2_,ValueLayout.ADDRESS),ar).address(),false);segment=null;arena=ar;}
         public Arena getArena(){return arena;} public MemorySegment getSegment(){return segment;} public void close(){arena.close();}
     }
 
@@ -694,50 +694,50 @@ public class ImGuiUtil {
 
 
     public static void doImGuiDum() {
-            PrintStream pw = System.out;
-            pw.println("Version " + ImGui.GetVersion() + " @ time " + ImGui.GetTime());
-            var io = ImGui.GetIO();
-            IO.println("IO:");
-            pw.println("-Backend flags: " + Integer.toBinaryString(io.getBackendFlags()));
-            pw.println("-Config flags: " + Integer.toBinaryString(io.getConfigFlags()));
-            pw.println("-Keymods: " + Integer.toBinaryString(io.getKeyMods()));
-            pw.println("-DisplayFramebufferScale: " + g(io.getDisplayFramebufferScale()));
-            pw.println("-DisplaySize: " + g(io.getDisplaySize()));
-            pw.println("-Backend Platform name: " + io.getBackendPlatformName());
-            pw.println("-Backend Renderer name: " + io.getBackendRendererName());
-            var pio = ImGui.GetPlatformIO();
-            IO.println("Platform IO:");
-            var monitors = new ImGuiPlatformMonitorVector(pio.getMonitors());
-            pw.println("-Monitors("+monitors.size()+"):");
-            for(var m : monitors) {
-                pw.println("--" + getSWIGTYPE_p_void(m.getPlatformHandle()));
-                pw.println("---Main Pos: "+ g(m.getMainPos()));
-                pw.println("---Main Size: "+ g(m.getMainSize()));
-                pw.println("---Work Pos: "+ g(m.getWorkPos()));
-                pw.println("---Work Size: "+ g(m.getWorkSize()));
-                pw.println("---DPI scale: "+ m.getDpiScale());
-            }
-            var viewports = new ImGuiViewportVector(pio.getViewports());
-            pw.println("-Viewports("+viewports.size()+"):");
-            for(var v : viewports) {
-                pw.println("--" + v.GetDebugName() + " (" + v.getID()+")");
-                pw.println("---Pos: "+ g(v.getPos()));
-                pw.println("---Size: "+ g(v.getSize()));
-                pw.println("---Work Pos: "+ g(v.getWorkPos()));
-                pw.println("---Work Size: "+ g(v.getWorkSize()));
-                pw.println("---DPI scale: "+ v.getDpiScale());
-                pw.println("---Framebuffer Scale: "+ g(v.getFramebufferScale()));
-                pw.println("---Flags: "+Integer.toBinaryString(v.getFlags()));
-                pw.println("---Platform Handle: " + getSWIGTYPE_p_void(v.getPlatformHandle()) + " (" + getSWIGTYPE_p_void(v.getPlatformHandleRaw())+")");
-            }
-    
-    
-    
+        PrintStream pw = System.out;
+        pw.println("Version " + ImGui.GetVersion() + " @ time " + ImGui.GetTime());
+        var io = ImGui.GetIO();
+        IO.println("IO:");
+        pw.println("-Backend flags: " + Integer.toBinaryString(io.getBackendFlags()));
+        pw.println("-Config flags: " + Integer.toBinaryString(io.getConfigFlags()));
+        pw.println("-Keymods: " + Integer.toBinaryString(io.getKeyMods()));
+        pw.println("-DisplayFramebufferScale: " + g(io.getDisplayFramebufferScale()));
+        pw.println("-DisplaySize: " + g(io.getDisplaySize()));
+        pw.println("-Backend Platform name: " + io.getBackendPlatformName());
+        pw.println("-Backend Renderer name: " + io.getBackendRendererName());
+        var pio = ImGui.GetPlatformIO();
+        IO.println("Platform IO:");
+        var monitors = new ImGuiPlatformMonitorVector(pio.getMonitors());
+        pw.println("-Monitors("+monitors.size()+"):");
+        for(var m : monitors) {
+            pw.println("--" + getSWIGTYPE_p_void(m.getPlatformHandle()));
+            pw.println("---Main Pos: "+ g(m.getMainPos()));
+            pw.println("---Main Size: "+ g(m.getMainSize()));
+            pw.println("---Work Pos: "+ g(m.getWorkPos()));
+            pw.println("---Work Size: "+ g(m.getWorkSize()));
+            pw.println("---DPI scale: "+ m.getDpiScale());
         }
-    
-        private static String g(ImVec2 v) {
-            return v == null ? "null" : String.format("[%s, %s]", v.getX(), v.getY());
+        var viewports = new ImGuiViewportVector(pio.getViewports());
+        pw.println("-Viewports("+viewports.size()+"):");
+        for(var v : viewports) {
+            pw.println("--" + v.GetDebugName() + " (" + v.getID()+")");
+            pw.println("---Pos: "+ g(v.getPos()));
+            pw.println("---Size: "+ g(v.getSize()));
+            pw.println("---Work Pos: "+ g(v.getWorkPos()));
+            pw.println("---Work Size: "+ g(v.getWorkSize()));
+            pw.println("---DPI scale: "+ v.getDpiScale());
+            pw.println("---Framebuffer Scale: "+ g(v.getFramebufferScale()));
+            pw.println("---Flags: "+Integer.toBinaryString(v.getFlags()));
+            pw.println("---Platform Handle: " + getSWIGTYPE_p_void(v.getPlatformHandle()) + " (" + getSWIGTYPE_p_void(v.getPlatformHandleRaw())+")");
         }
+
+
+
+    }
+
+    private static String g(ImVec2 v) {
+        return v == null ? "null" : String.format("[%s, %s]", v.getX(), v.getY());
+    }
 
 
 
@@ -745,4 +745,3 @@ public class ImGuiUtil {
 
 
 }
-
