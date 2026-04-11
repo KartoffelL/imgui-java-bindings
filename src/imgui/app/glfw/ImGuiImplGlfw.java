@@ -126,11 +126,25 @@ public class ImGuiImplGlfw {
         return (T) USER_DATA.get(l);
     }
     protected static long putUserData(Object o) {
-        long a = random.nextLong();
+        
+        long a = MemoryUtil.memAddress(MemoryUtil.memAlloc(1));
+        
         USER_DATA.put(a, o);
         return a;
     }
+    protected static void deleteUserData(long l) {
+        USER_DATA.remove(l);
+        
+        MemoryUtil.nmemFree(l);
+        
+    }
 
+    /**
+     * Is called right before creating a GLFW window
+     */
+    protected void additionalWindowCreationHints(int imGuiViewportFlags) {
+
+    }
 
     protected  SWIGTYPE_p_f_p_void__p_char getClipboardTextFn() {
         return new ImGuiUtil.SWIGTYPE_p_f_p_void__p_charImpl((seg)->{
@@ -747,7 +761,7 @@ public class ImGuiImplGlfw {
                     glfwSetWindowAttrib(window, GLFW_MOUSE_PASSTHROUGH, windowNoInput ? GLFW_TRUE : GLFW_FALSE);
                 }
                 if (glfwGetWindowAttrib(window, GLFW_HOVERED) == GLFW_TRUE && !windowNoInput) {
-                    mouseViewportId = Math.toIntExact(viewport.getID());
+                    mouseViewportId = (int)viewport.getID();
                 }
             }
             // else
@@ -1045,7 +1059,7 @@ public class ImGuiImplGlfw {
             var vp = ImGuiUtil.newImGuiViewport(a.address());
             final ViewportData vd = new ViewportData();
             final long vd_ = putUserData(vd);
-
+            vp.setPlatformUserData(ImGuiUtil.newSWIGTYPE_p_void(vd_));
             // GLFW 3.2 unfortunately always set focus on glfwCreateWindow() if GLFW_VISIBLE is set, regardless of GLFW_FOCUSED
             // With GLFW 3.3, the hint GLFW_FOCUS_ON_SHOW fixes this problem
             glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -1059,6 +1073,7 @@ public class ImGuiImplGlfw {
             }
 
             var size = vp.getSize();
+            additionalWindowCreationHints(vp.getFlags());
             vd.window = glfwCreateWindow((int) size.getX(), (int) size.getY(), "No Title Yet", NULL, data.window);
             vd.windowOwned = true;
 
@@ -1087,6 +1102,7 @@ public class ImGuiImplGlfw {
 
             glfwMakeContextCurrent(vd.window);
             glfwSwapInterval(0);
+            
         }
     }
 
@@ -1126,8 +1142,9 @@ public class ImGuiImplGlfw {
 
         @Override
         public void call(MemorySegment a) {
+            
             var vp = ImGuiUtil.newImGuiViewport(a.address());
-            final ViewportData vd = getUserData(ImGuiUtil.getSWIGTYPE_p_void(vp.getPlatformUserData()));
+            final ViewportData vd = getUserData(ImGuiJNI.ImGuiViewport_PlatformUserData_get(a.address(), vp));
             if (vd == null) {
                 return;
             }
@@ -1137,6 +1154,7 @@ public class ImGuiImplGlfw {
 //            }
 
             glfwShowWindow(vd.window);
+            
         }
     }
 
@@ -1144,15 +1162,16 @@ public class ImGuiImplGlfw {
         private final int[] posX = new int[1];
         private final int[] posY = new int[1];
 
-//        @Override
+        //        @Override
 //        public void get(final ImGuiViewport vp, final ImVec2 dst) {
 //
 //        }
         final ImVec2 result = new ImVec2();
         @Override
         public MemorySegment call(MemorySegment a) {
+
             var vp = ImGuiUtil.newImGuiViewport(a.address());
-            final ViewportData vd = getUserData(ImGuiUtil.getSWIGTYPE_p_void(vp.getPlatformUserData()));
+            final ViewportData vd = getUserData(ImGuiJNI.ImGuiViewport_PlatformUserData_get(a.address(), vp));
             if (vd == null) {
                 return MemorySegment.ofAddress(ImGuiUtil.getImVec2(result));
             }
@@ -1162,7 +1181,7 @@ public class ImGuiImplGlfw {
             result.setX(posX[0]);
             result.setY(posY[0]);
 //            dst.set(posX[0], posY[0]);
-            return MemorySegment.ofAddress(ImGuiUtil.getImVec2(result));
+            return MemorySegment.ofAddress(ImGuiUtil.getImVec2(result)).reinterpret(ImGuiUtil.ImVec2__);
         }
     }
 
@@ -1173,15 +1192,17 @@ public class ImGuiImplGlfw {
 //        }
 
         @Override
-        public void call(MemorySegment a, MemorySegment b) {
+        public void call(MemorySegment a, MemorySegment s) {
+            float x = s.get(ValueLayout.JAVA_FLOAT, 0);
+            float y = s.get(ValueLayout.JAVA_FLOAT, 4);
             var vp = ImGuiUtil.newImGuiViewport(a.address());
-            var value = ImGuiUtil.newImVec2(b.address());
-            final ViewportData vd = getUserData(ImGuiUtil.getSWIGTYPE_p_void(vp.getPlatformUserData()));
+
+            final ViewportData vd = getUserData(ImGuiJNI.ImGuiViewport_PlatformUserData_get(a.address(), vp));
             if (vd == null) {
                 return;
             }
             vd.ignoreWindowPosEventFrame = ImGui.GetFrameCount();
-            glfwSetWindowPos(vd.window, (int) value.getX(), (int) value.getY());
+            glfwSetWindowPos(vd.window, (int) x, (int) y);
         }
     }
 
@@ -1197,8 +1218,9 @@ public class ImGuiImplGlfw {
         final ImVec2 result = new ImVec2();
         @Override
         public MemorySegment call(MemorySegment a) {
+            
             var vp = ImGuiUtil.newImGuiViewport(a.address());
-            final ViewportData vd = getUserData(ImGuiUtil.getSWIGTYPE_p_void(vp.getPlatformUserData()));
+            final ViewportData vd = getUserData(ImGuiJNI.ImGuiViewport_PlatformUserData_get(a.address(), vp));
             if (vd == null) {
                 return MemorySegment.ofAddress(ImGuiUtil.getImVec2(result));
             }
@@ -1207,11 +1229,11 @@ public class ImGuiImplGlfw {
             glfwGetWindowSize(vd.window, width, height);
             result.setX(width[0]);
             result.setY(height[0]);
-            return MemorySegment.ofAddress(ImGuiUtil.getImVec2(result));
+            return MemorySegment.ofAddress(ImGuiUtil.getImVec2(result)).reinterpret(ImGuiUtil.ImVec2__);
         }
     }
 
-    private final class SetWindowSizeFunction implements ImGuiUtil.SWIGTYPE_p_f_p_ImGuiViewport_ImVec2__voidImpl.call/*extends ImPlatformFuncViewportImVec2*/ {
+    private static final class SetWindowSizeFunction implements ImGuiUtil.SWIGTYPE_p_f_p_ImGuiViewport_ImVec2__voidImpl.call/*extends ImPlatformFuncViewportImVec2*/ {
         private final int[] x = new int[1];
         private final int[] y = new int[1];
         private final int[] width = new int[1];
@@ -1223,13 +1245,16 @@ public class ImGuiImplGlfw {
 //        }
 
         @Override
-        public void call(MemorySegment a, MemorySegment b) {
+        public void call(MemorySegment a, MemorySegment s) {
+            float vx = s.get(ValueLayout.JAVA_FLOAT, 0);
+            float vy = s.get(ValueLayout.JAVA_FLOAT, 4);
+
             var vp = ImGuiUtil.newImGuiViewport(a.address());
-            var value = ImGuiUtil.newImVec2(b.address());
-            final ViewportData vd = getUserData(ImGuiUtil.getSWIGTYPE_p_void(vp.getPlatformUserData()));
+            final ViewportData vd = getUserData(ImGuiJNI.ImGuiViewport_PlatformUserData_get(a.address(), vp));
             if (vd == null) {
                 return;
             }
+            
             if (IS_APPLE && !glfwHasOsxWindowPosFix) {
                 // Native OS windows are positioned from the bottom-left corner on macOS, whereas on other platforms they are
                 // positioned from the upper-left corner. GLFW makes an effort to convert macOS style coordinates, however it
@@ -1241,10 +1266,11 @@ public class ImGuiImplGlfw {
                 height[0] = 0;
                 glfwGetWindowPos(vd.window, x, y);
                 glfwGetWindowSize(vd.window, width, height);
-                glfwSetWindowPos(vd.window, x[0], y[0] - height[0] + (int) value.getY());
+                glfwSetWindowPos(vd.window, x[0], y[0] - height[0] + (int) vy);
             }
+            
             vd.ignoreWindowSizeEventFrame = ImGui.GetFrameCount();
-            glfwSetWindowSize(vd.window, (int) value.getX(), (int) value.getY());
+            glfwSetWindowSize(vd.window, (int) vx, (int) vy);
         }
     }
 
@@ -1256,15 +1282,17 @@ public class ImGuiImplGlfw {
 
         @Override
         public void call(MemorySegment a, MemorySegment b) {
+            
             var vp = ImGuiUtil.newImGuiViewport(a.address());
-            final ViewportData vd = getUserData(ImGuiUtil.getSWIGTYPE_p_void(vp.getPlatformUserData()));
+            final ViewportData vd = getUserData(ImGuiJNI.ImGuiViewport_PlatformUserData_get(a.address(), vp));
             if (vd != null) {
-                glfwSetWindowTitle(vd.window, b.getString(0));
+                glfwSetWindowTitle(vd.window, MemoryUtil.memUTF8(b.address()));
             }
+            
         }
     }
 
-    private final class SetWindowFocusFunction implements ImGuiUtil.SWIGTYPE_p_f_p_ImGuiViewport__voidImpl.call/*extends ImPlatformFuncViewport*/ {
+    private static final class SetWindowFocusFunction implements ImGuiUtil.SWIGTYPE_p_f_p_ImGuiViewport__voidImpl.call/*extends ImPlatformFuncViewport*/ {
 //        @Override
 //        public void accept(final ImGuiViewport vp) {
 //
@@ -1272,13 +1300,15 @@ public class ImGuiImplGlfw {
 
         @Override
         public void call(MemorySegment a) {
+            
             var vp = ImGuiUtil.newImGuiViewport(a.address());
             if (glfwHasFocusWindow) {
-                final ViewportData vd = getUserData(ImGuiUtil.getSWIGTYPE_p_void(vp.getPlatformUserData()));
+                final ViewportData vd = getUserData(ImGuiJNI.ImGuiViewport_PlatformUserData_get(a.address(), vp));
                 if (vd != null) {
                     glfwFocusWindow(vd.window);
                 }
             }
+            
         }
     }
 
@@ -1290,8 +1320,12 @@ public class ImGuiImplGlfw {
 
         @Override
         public boolean call(MemorySegment a) {
+            
             var vp = ImGuiUtil.newImGuiViewport(a.address());
-            final ViewportData data = getUserData(ImGuiUtil.getSWIGTYPE_p_void(vp.getPlatformUserData()));
+            final ViewportData data = getUserData(ImGuiJNI.ImGuiViewport_PlatformUserData_get(a.address(), vp));
+            if(data == null)
+                return false;
+            
             return glfwGetWindowAttrib(data.window, GLFW_FOCUSED) != 0;
         }
     }
@@ -1304,8 +1338,9 @@ public class ImGuiImplGlfw {
 
         @Override
         public boolean call(MemorySegment a) {
+            
             var vp = ImGuiUtil.newImGuiViewport(a.address());
-            final ViewportData vd = getUserData(ImGuiUtil.getSWIGTYPE_p_void(vp.getPlatformUserData()));
+            final ViewportData vd = getUserData(ImGuiJNI.ImGuiViewport_PlatformUserData_get(a.address(), vp));
             if (vd != null) {
                 return glfwGetWindowAttrib(vd.window, GLFW_ICONIFIED) != GLFW_FALSE;
             }
@@ -1321,13 +1356,15 @@ public class ImGuiImplGlfw {
 
         @Override
         public void call(MemorySegment a, float value) {
+            
             var vp = ImGuiUtil.newImGuiViewport(a.address());
             if (glfwHasWindowAlpha) {
-                final ViewportData vd = getUserData(ImGuiUtil.getSWIGTYPE_p_void(vp.getPlatformUserData()));
+                final ViewportData vd = getUserData(ImGuiJNI.ImGuiViewport_PlatformUserData_get(a.address(), vp));
                 if (vd != null) {
                     glfwSetWindowOpacity(vd.window, value);
                 }
             }
+            
         }
     }
 
@@ -1339,23 +1376,28 @@ public class ImGuiImplGlfw {
 
         @Override
         public void call(MemorySegment a, MemorySegment b) {
+            
             var vp = ImGuiUtil.newImGuiViewport(a.address());
-            final ViewportData vd = getUserData(ImGuiUtil.getSWIGTYPE_p_void(vp.getPlatformUserData()));
+            final ViewportData vd = getUserData(ImGuiJNI.ImGuiViewport_PlatformUserData_get(a.address(), vp));
             if (vd != null) {
                 glfwMakeContextCurrent(vd.window);
             }
+            
         }
     }
 
     private static final class SwapBuffersFunction implements ImGuiUtil.SWIGTYPE_p_f_p_ImGuiViewport_p_void__voidImpl.call/*extends ImPlatformFuncViewport*/ {
         @Override
         public void call(final MemorySegment a, final MemorySegment b) {
+            
+            
             var vp = ImGuiUtil.newImGuiViewport(a.address());
-            final ViewportData vd = getUserData(ImGuiUtil.getSWIGTYPE_p_void(vp.getPlatformUserData()));
+            final ViewportData vd = getUserData(ImGuiJNI.ImGuiViewport_PlatformUserData_get(a.address(), vp));
             if (vd != null) {
                 glfwMakeContextCurrent(vd.window);
                 glfwSwapBuffers(vd.window);
             }
+            
         }
     }
 
@@ -1388,6 +1430,7 @@ public class ImGuiImplGlfw {
         vd.windowOwned = false;
         mainViewport.setPlatformUserData(ImGuiUtil.newSWIGTYPE_p_void(vd_));
         mainViewport.setPlatformHandle(ImGuiUtil.newSWIGTYPE_p_void(data.window));
+        
     }
 
     protected void shutdownPlatformInterface() {
